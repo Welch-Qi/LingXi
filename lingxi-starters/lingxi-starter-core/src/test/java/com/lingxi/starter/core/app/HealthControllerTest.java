@@ -1,19 +1,22 @@
 package com.lingxi.starter.core.app;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(HealthController.class)
 class HealthControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(new HealthController("lingxi-server")).build();
+    }
 
     @Test
     void healthReturnsUpInUnifiedResultFormat() throws Exception {
@@ -22,6 +25,6 @@ class HealthControllerTest {
                 .andExpect(jsonPath("$.code").value("0"))
                 .andExpect(jsonPath("$.message").value("success"))
                 .andExpect(jsonPath("$.data.status").value("UP"))
-                .andExpect(jsonPath("$.data.service").value("lingxi"));
+                .andExpect(jsonPath("$.data.service").value("lingxi-server"));
     }
 }

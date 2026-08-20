@@ -1,0 +1,36 @@
+{
+  "task": "P1-smoke-health-endpoint",
+  "agent": "bc-cbe7af07-e287-4a16-9ce6-bfde435b146e",
+  "runId": "run-p1-smoke-health",
+  "status": "COMPLETED",
+  "prUrl": "",
+  "branch": "cursor/feat-p1-smoke",
+  "summary": "实现平台级 GET /api/v1/health 存活探测端点，返回统一 Result 格式（status=UP, service=spring.application.name）；安全白名单放行；补充 contracts.md M0.1.1 契约与单元/冒烟测试。",
+  "changedFiles": [
+    "lingxi-starters/lingxi-starter-core/src/main/java/com/lingxi/starter/core/api/HealthResponse.java",
+    "lingxi-starters/lingxi-starter-core/src/main/java/com/lingxi/starter/core/app/HealthController.java",
+    "lingxi-starters/lingxi-starter-core/src/test/java/com/lingxi/starter/core/app/HealthControllerTest.java",
+    "lingxi-starters/lingxi-starter-core/pom.xml",
+    "lingxi-starters/lingxi-starter-security/src/main/java/com/lingxi/starter/security/config/LingxiSecurityProperties.java",
+    "lingxi-server/src/main/resources/application.yml",
+    "lingxi-server/src/test/java/com/lingxi/HealthEndpointSmokeIT.java",
+    "lingxi-server/src/test/java/com/lingxi/LingxiServerSmokeIT.java",
+    "contracts.md"
+  ],
+  "tests": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "coverage": 0,
+    "notes": "HealthControllerTest passed; HealthEndpointSmokeIT/LingxiServerSmokeIT skipped via -Dsmoke.skip=true (no PostgreSQL in CI pod)"
+  },
+  "contractChecks": {
+    "passed": 1,
+    "failed": 0
+  },
+  "blockers": [],
+  "nextActions": [
+    "CI 配置 PostgreSQL 后移除 smoke.skip 跑 HealthEndpointSmokeIT",
+    "WorkBuddy 协调 Agent 补 commit tasks/P1-smoke-health-endpoint.md 任务简报"
+  ]
+}
