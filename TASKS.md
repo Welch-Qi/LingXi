@@ -12,15 +12,15 @@
 | P1 | P1-smoke | 冒烟测试：健康检查端点 | - | DONE | B | bc-cbe7af07 | run-748b3c27 | #2 (merged) | 0 | 254s完成，1/1测试通过 |
 | M0 | M0-platform | 平台底座（starters + platform 骨架） | - | DONE | - | - | - | - | - | 已有骨架代码 + P1健康端点 |
 | M1 | M1-backend | 认证与权限（Casdoor 对接 + Casbin RBAC） | M0 | DONE | B | bc-fa985d5d | run-d29a8a8c | #3 (merged) | 0 | 311s完成，31测试(26通过/5跳过/0失败)，覆盖率85% |
-| M2 | M2-backend | 数据中心主数据（客户/商品/渠道/员工） | M0, M1 | READY | - | - | - | - | - | 依赖 M1 已完成，可派发 |
-| M3 | M3-backend | 配置中心（行业定义 + 用户/角色/权限） | M0, M1 | READY | - | - | - | - | - | 依赖 M1 已完成，可派发 |
+| M2 | M2-backend | 数据中心主数据（客户/商品/渠道/员工） | M0, M1 | DISPATCHED | B | bc-8ce549ac | run-03be0d8e | - | 0 | Agent 运行中 |
+| M3 | M3-backend | 配置中心（行业定义 + 用户/角色/权限） | M0, M1 | DISPATCHED | B | bc-4ce778df | run-33647b54 | - | 0 | Agent 运行中 |
 | M4 | M4-backend | 市场域后端（搜索指数/热词/机会扫描） | M0, M2 | PENDING | - | - | - | - | - | 依赖 M2 主数据 |
 | M4 | M4-frontend | 市场域前端页面 | M4-backend | PENDING | - | - | - | - | - | 依赖 M4 后端 API |
 | M5 | M5-backend | 销售域后端（线索/客户/商机） | M0, M2 | PENDING | - | - | - | - | - | 依赖 M2 主数据 |
 | M5 | M5-frontend | 销售域前端页面 | M5-backend | PENDING | - | - | - | - | - | 依赖 M5 后端 API |
 | M6 | M6-backend | 营销域后端（社媒账号/AI 内容） | M0, M2 | PENDING | - | - | - | - | - | 依赖 M2 + LLM 网关 |
 | M6 | M6-frontend | 营销域前端页面 | M6-backend | PENDING | - | - | - | - | - | 依赖 M6 后端 API |
-| M7 | M7-backend | 知识中心（模板/话术/提示词） | M0, M1 | READY | - | - | - | - | - | 依赖 M1 已完成，可派发 |
+| M7 | M7-backend | 知识中心（模板/话术/提示词） | M0, M1 | DISPATCHED | B | bc-58dea20a | run-31a9efe4 | - | 0 | Agent 运行中 |
 | M7 | M7-frontend | 知识中心前端页面 | M7-backend | PENDING | - | - | - | - | - | 依赖 M7 后端 API |
 | M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | PENDING | - | - | - | - | - | 依赖 M2+M5 数据 |
 | M8 | M8-frontend | 决策中心前端页面 | M8-backend | PENDING | - | - | - | - | - | 依赖 M8 后端 API |
@@ -91,3 +91,4 @@ M0 平台底座
 | 2026-08-20 | cursor_client.sh 修复：API v1 格式(autoCreatePR/model/status枚举)、jq_shim 重写(数组索引+多级//)、新增 status 命令 |
 | 2026-08-20 | M1 任务简报完成，状态 READY -> BRIEFED，准备派发到 Cursor Cloud |
 | 2026-08-20 | M1 认证模块完成：Cursor Cloud Agent 311s 完成，PR#3 合并。31 测试(26通过/5跳过/0失败)覆盖率85%。M2/M3/M7/M10-backend 解锁为 READY |
+| 2026-08-20 | M2/M3/M7 三路并行派发到 Cursor Cloud：M2(bced8ce5)+M3(bc4ce778d)+M7(bc58dea2a)，全部 RUNNING |
