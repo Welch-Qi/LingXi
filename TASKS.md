@@ -14,17 +14,17 @@
 | M1 | M1-backend | 认证与权限（Casdoor 对接 + Casbin RBAC） | M0 | DONE | B | bc-fa985d5d | run-d29a8a8c | #3 (merged) | 0 | 311s完成，31测试(26通过/5跳过/0失败)，覆盖率85% |
 | M2 | M2-backend | 数据中心主数据（客户/商品/渠道/员工） | M0, M1 | DONE | B | bc-8ce549ac | run-03be0d8e | #5 (merged) | 0 | 176s，8测试全通过，新增PATCH+员工CRUD+keyword搜索 |
 | M3 | M3-backend | 配置中心（行业定义 + 用户/角色/权限） | M0, M1 | DONE | B | bc-4ce778df | run-33647b54 | #6 (merged) | 0 | 179s，10测试全通过，新增用户/角色/权限CRUD+4张新表 |
-| M4 | M4-backend | 市场域后端（搜索指数/热词/机会扫描） | M0, M2 | DISPATCHED | B | bc-081e6252 | run-03ae2b10 | - | 0 | Agent 运行中 |
+| M4 | M4-backend | 市场域后端（搜索指数/热词/机会扫描） | M0, M2 | DONE | B | bc-081e6252 | run-03ae2b10 | #9 (merged) | 0 | 227s，8测试全通过，新增search-trends/hot-keywords/rising-keywords/region-heat端点 |
 | M4 | M4-frontend | 市场域前端页面 | M4-backend | PENDING | - | - | - | - | - | 依赖 M4 后端 API |
-| M5 | M5-backend | 销售域后端（线索/客户/商机） | M0, M2 | DISPATCHED | B | bc-3f886876 | run-f7d23b5d | - | 0 | Agent 运行中 |
+| M5 | M5-backend | 销售域后端（线索/客户/商机） | M0, M2 | DONE | B | bc-3f886876 | run-f7d23b5d | #8 (merged) | 0 | 192s，11测试全通过，新增线索详情/客户创建/商机创建+advanceTo领域方法 |
 | M5 | M5-frontend | 销售域前端页面 | M5-backend | PENDING | - | - | - | - | - | 依赖 M5 后端 API |
-| M6 | M6-backend | 营销域后端（社媒账号/AI 内容） | M0, M2 | DISPATCHED | B | bc-5eddff8d | run-605b8928 | - | 0 | Agent 运行中 |
+| M6 | M6-backend | 营销域后端（社媒账号/AI 内容） | M0, M2 | DONE | B | bc-5eddff8d | run-605b8928 | #7 (merged) | 0 | 161s，8测试全通过，新增社媒绑定/解绑+ai-content契约端点 |
 | M6 | M6-frontend | 营销域前端页面 | M6-backend | PENDING | - | - | - | - | - | 依赖 M6 后端 API |
 | M7 | M7-backend | 知识中心（模板/话术/提示词） | M0, M1 | DONE | B | bc-58dea20a | run-31a9efe4 | #4 (merged) | 0 | 146s，8测试全通过，keyword搜索+分页格式 |
 | M7 | M7-frontend | 知识中心前端页面 | M7-backend | PENDING | - | - | - | - | - | 依赖 M7 后端 API |
-| M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | PENDING | - | - | - | - | - | 依赖 M2+M5 数据 |
+| M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | READY | - | - | - | - | - | 依赖 M2+M5 已完成，可派发 |
 | M8 | M8-frontend | 决策中心前端页面 | M8-backend | PENDING | - | - | - | - | - | 依赖 M8 后端 API |
-| M9 | M9-backend | AI Agent Runtime（五大智能体） | M4, M5, M6, M7 | PENDING | - | - | - | - | - | Python 工程，依赖业务域 API |
+| M9 | M9-backend | AI Agent Runtime（五大智能体） | M4, M5, M6, M7 | READY | - | - | - | - | - | 依赖的四域后端全部完成，可派发（Python 工程） |
 | M10 | M10-backend | 工作台后端（首页/任务中心/通知） | M0, M1 | READY | - | - | - | - | - | 依赖 M1 已完成，可派发 |
 | M10 | M10-frontend | 统一工作台 + 全量前端联调 | M4~M9 全部前端 | PENDING | - | - | - | - | - | 通道C：复杂模块人工兜底 |
 
@@ -93,3 +93,5 @@ M0 平台底座
 | 2026-08-20 | M1 认证模块完成：Cursor Cloud Agent 311s 完成，PR#3 合并。31 测试(26通过/5跳过/0失败)覆盖率85%。M2/M3/M7/M10-backend 解锁为 READY |
 | 2026-08-20 | M2/M3/M7 三路并行派发到 Cursor Cloud：M2(bced8ce5)+M3(bc4ce778d)+M7(bc58dea2a)，全部 RUNNING |
 | 2026-08-20 | M2/M3/M7 三路并行完成并合并：M2 PR#5(176s,8测试)+M3 PR#6(179s,10测试)+M7 PR#4(146s,8测试)，共26测试全通过，新增27文件+1679行。M4/M5/M6 解锁为 READY |
+| 2026-08-21 | M4/M5/M6 三路并行派发到 Cursor Cloud：M4(bc081e6252)+M5(bc3f886876)+M6(bc5eddff8d)，全部 RUNNING |
+| 2026-08-21 | M4/M5/M6 三路并行完成并合并：M4 PR#9(227s,8测试)+M5 PR#8(192s,11测试)+M6 PR#7(161s,8测试)，共27测试全通过，+1297行。M8/M9 解锁为 READY。至此 M0~M7 后端全部 DONE |
