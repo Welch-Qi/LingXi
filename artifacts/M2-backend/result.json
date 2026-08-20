@@ -2,6 +2,8 @@
   "taskId": "M2-backend",
   "status": "COMPLETED",
   "summary": "补齐PATCH端点+员工CRUD+keyword搜索+8个单元测试",
+  "branch": "cursor/feat-m2-backend",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/5",
   "testCount": 8,
   "testPassed": 8,
   "testFailed": 0,
