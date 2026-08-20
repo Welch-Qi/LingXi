@@ -1,0 +1,24 @@
+{
+  "task": "P0-test-write-readme",
+  "agent": "workbuddy-local-simulation",
+  "runId": "local-dry-run-001",
+  "status": "COMPLETED",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/1",
+  "branch": "cursor/feat-p0-test-readme",
+  "summary": "完善 README.md，补充统一构建入口(Makefile)、模块清单(15个后端模块+前端+AI)、文档索引、多智能体协作开发说明。新增折叠展开的分栈命令、模块表格和协作文件索引。",
+  "changedFiles": [
+    "README.md"
+  ],
+  "tests": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "coverage": 0
+  },
+  "contractChecks": {
+    "passed": 1,
+    "failed": 0
+  },
+  "blockers": [],
+  "nextActions": ["配置 CURSOR_API_KEY 后跑真实 Cursor Agent 派发验证"]
+}
