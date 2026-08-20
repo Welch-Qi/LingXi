@@ -3,7 +3,7 @@
   "agent": "bc-cbe7af07-e287-4a16-9ce6-bfde435b146e",
   "runId": "run-p1-smoke-health",
   "status": "COMPLETED",
-  "prUrl": "",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/2",
   "branch": "cursor/feat-p1-smoke",
   "summary": "实现平台级 GET /api/v1/health 存活探测端点，返回统一 Result 格式（status=UP, service=spring.application.name）；安全白名单放行；补充 contracts.md M0.1.1 契约与单元/冒烟测试。",
   "changedFiles": [
