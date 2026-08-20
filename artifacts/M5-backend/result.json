@@ -1,6 +1,8 @@
 {
   "taskId": "M5-backend",
   "status": "COMPLETED",
+  "branch": "cursor/feat-m5-backend",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/8",
   "summary": "补齐线索详情/客户创建/商机创建+详情/advanceTo领域方法+11个单元测试",
   "testCount": 11,
   "testPassed": 11,
