@@ -409,6 +409,53 @@ dispatch_fix() {
 }
 
 # ============================================================
+# 函数 6：status — 单次查询 run 状态（不轮询）
+# ============================================================
+# 用法：./cursor_client.sh status <agent_id> <run_id>
+# ============================================================
+status() {
+    check_env cursor
+    local agent_id="$1"
+    local run_id="$2"
+
+    if [ -z "$agent_id" ] || [ -z "$run_id" ]; then
+        log_error "用法: $0 status <agent_id> <run_id>"
+        exit 1
+    fi
+
+    local response
+    response=$(curl -sS "${API_BASE}/agents/${agent_id}/runs/${run_id}" \
+        -u "${CURSOR_API_KEY}:" 2>/dev/null) || {
+        log_error "API 调用失败"
+        exit 1
+    }
+
+    local s dur pr_url git_branch result
+    s=$(echo "$response" | jq -r '.status // "UNKNOWN"')
+    dur=$(echo "$response" | jq -r '.durationMs // "N/A"')
+    pr_url=$(echo "$response" | jq -r '.git.branches[0].prUrl // "N/A"')
+    git_branch=$(echo "$response" | jq -r '.git.branches[0].branch // "N/A"')
+    result=$(echo "$response" | jq -r '.result // ""')
+
+    log_info "状态:   $s"
+    log_info "时长:   ${dur}ms"
+    log_info "分支:   $git_branch"
+    log_info "PR:     $pr_url"
+    if [ -n "$result" ]; then
+        log_info "结果:   ${result:0:200}"
+    fi
+
+    # 输出结构化结果
+    jq -n \
+        --arg status "$s" \
+        --arg duration "$dur" \
+        --arg branch "$git_branch" \
+        --arg prUrl "$pr_url" \
+        --arg result "$result" \
+        '{status: $status, durationMs: $duration, branch: $branch, prUrl: $prUrl, result: $result}'
+}
+
+# ============================================================
 # 主入口
 # ============================================================
 usage() {
@@ -417,6 +464,7 @@ usage() {
 
 命令:
   dispatch       <brief_path> <module> [agent_id]   派发任务到 Cursor Cloud API
+  status         <agent_id> <run_id>               单次查询 run 状态
   poll           <agent_id> <run_id>               轮询 run 状态直到终态
   fetch_result   <branch> <module>                 拉取分支并读取 result.json
   merge_pr       <pr_url> [merge_method]            合并 PR 并删除分支
@@ -435,7 +483,10 @@ usage() {
   # 派发 M4 后端任务
   ./cursor_client.sh dispatch tasks/M4-backend.md M4-backend
 
-  # 轮询状态
+  # 查询状态（单次）
+  ./cursor_client.sh status bc-xxx run-yyy
+
+  # 轮询状态（阻塞直到终态）
   ./cursor_client.sh poll bc-xxx run-yyy
 
   # 拉取结果
@@ -453,6 +504,7 @@ EOF
 # ---- 分发命令 ----
 case "${1:-}" in
     dispatch)       shift; dispatch "$@" ;;
+    status)         shift; status "$@" ;;
     poll)           shift; poll "$@" ;;
     fetch_result)   shift; fetch_result "$@" ;;
     merge_pr)       shift; merge_pr "$@" ;;

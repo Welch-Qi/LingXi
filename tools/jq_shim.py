@@ -1,6 +1,100 @@
 #!/usr/bin/env python
-"""jq shim - 用 Python 实现 cursor_client.sh 所需的最小 jq 功能"""
-import sys, json, subprocess
+"""jq shim - 用 Python 实现 cursor_client.sh 所需的最小 jq 功能
+支持: -n --arg, -r (path/array-index/ //-fallback), pretty-print
+"""
+import sys, json, re
+
+
+def parse_path(expr):
+    """解析 jq 路径表达式如 .git.branches[0].prUrl → [('key','git'),('key','branches'),('index',0),('key','prUrl')]"""
+    steps = []
+    for part in expr.lstrip('.').split('.'):
+        if part == '':
+            continue
+        # 处理 field[0] 或 field[0][1]
+        m = re.match(r'^(\w*)\[(\d+)\](.*)$', part)
+        while m:
+            field, idx, rest = m.group(1), int(m.group(2)), m.group(3)
+            if field:
+                steps.append(('key', field))
+            steps.append(('index', idx))
+            part = rest
+            m = re.match(r'^\[(\d+)\](.*)$', part)
+            if m:
+                continue
+            m = re.match(r'^(\w*)\[(\d+)\](.*)$', part)
+        if part == '':
+            continue
+        steps.append(('key', part))
+    return steps
+
+
+def navigate(obj, steps):
+    """按 steps 导航 JSON 树"""
+    for stype, sval in steps:
+        if stype == 'key':
+            if isinstance(obj, dict):
+                obj = obj.get(sval)
+            else:
+                return None
+        elif stype == 'index':
+            if isinstance(obj, list) and sval < len(obj):
+                obj = obj[sval]
+            else:
+                return None
+        if obj is None:
+            return None
+    return obj
+
+
+def split_alt(expr):
+    """按 // 拆分表达式（处理引号内的 //）"""
+    parts = []
+    current = ''
+    in_str = False
+    quote = ''
+    i = 0
+    while i < len(expr):
+        c = expr[i]
+        if in_str:
+            current += c
+            if c == quote:
+                in_str = False
+        elif c in ('"', "'"):
+            in_str = True
+            quote = c
+            current += c
+        elif expr[i:i+2] == '//':
+            parts.append(current)
+            current = ''
+            i += 2
+            continue
+        else:
+            current += c
+        i += 1
+    parts.append(current)
+    return parts
+
+
+def eval_expr(obj, expr):
+    """求值 jq 表达式，支持 // 回退"""
+    for part in split_alt(expr):
+        part = part.strip()
+        if not part:
+            continue
+        # 字符串字面量
+        if (part.startswith('"') and part.endswith('"')) or (part.startswith("'") and part.endswith("'")):
+            return part[1:-1]
+        # empty 关键字 → 跳过（尝试下一个 //）
+        if part == 'empty':
+            continue
+        # 路径表达式
+        steps = parse_path(part)
+        result = navigate(obj, steps)
+        if result is not None and result != '':
+            return result
+    return None
+
 
 def main():
     args = sys.argv[1:]
@@ -9,7 +103,6 @@ def main():
     if '-n' in args:
         idx = args.index('-n')
         rest = args[idx+1:]
-        # 收集 --arg key val 对
         string_args = {}
         i = 0
         while i < len(rest) and rest[i] == '--arg':
@@ -17,17 +110,14 @@ def main():
             val = rest[i+2]
             string_args[key] = val
             i += 3
-        # 剩余是 JSON 模板
         template = ' '.join(rest[i:]).strip().strip("'").strip('"')
-        # 替换 $key 占位符
         result = template
         for k, v in string_args.items():
             result = result.replace(f'${k}', json.dumps(v, ensure_ascii=False))
-        # 输出
         try:
             parsed = json.loads(result)
             print(json.dumps(parsed, ensure_ascii=False, indent=2))
-        except:
+        except Exception:
             print(result)
         return
 
@@ -38,34 +128,16 @@ def main():
         data = sys.stdin.read()
         try:
             obj = json.loads(data)
-        except:
+        except Exception:
             print(data.strip())
             return
-        # 简单表达式解析: .field.subfield 或 .field
-        keys = expr.lstrip('.').split('.')
-        val = obj
-        for k in keys:
-            if k == '':
-                continue
-            if isinstance(val, list) and k == 'length':
-                print(len(val))
-                return
-            if isinstance(val, dict):
-                val = val.get(k, '')
-            else:
-                val = ''
-        if val == '' and '//' in expr:
-            # .field // 'default' 语法
-            parts = expr.split('//')
-            key = parts[0].strip().lstrip('.')
-            default = parts[1].strip().strip("'").strip('"').strip()
-            val = obj
-            for k in key.split('.'):
-                if k == '': continue
-                val = val.get(k, '') if isinstance(val, dict) else ''
-            print(val if val != '' and val is not None else default)
-            return
-        print(val if val is not None else '')
+        result = eval_expr(obj, expr)
+        if result is None:
+            print('')
+        elif isinstance(result, (dict, list)):
+            print(json.dumps(result, ensure_ascii=False))
+        else:
+            print(result)
         return
 
     # echo "$json" | jq . (pretty print)
@@ -74,17 +146,18 @@ def main():
         try:
             obj = json.loads(data)
             print(json.dumps(obj, ensure_ascii=False, indent=2))
-        except:
+        except Exception:
             print(data.strip())
         return
 
-    # 其他情况：透传 stdin
+    # 其他：透传 stdin pretty-print
     data = sys.stdin.read()
     try:
         obj = json.loads(data)
         print(json.dumps(obj, ensure_ascii=False, indent=2))
-    except:
+    except Exception:
         print(data.strip())
+
 
 if __name__ == '__main__':
     main()

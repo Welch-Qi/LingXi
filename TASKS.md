@@ -9,7 +9,8 @@
 
 | 模块 | 任务 ID | 名称 | 依赖 | 状态 | 通道 | agentId | runId | PR | 修复轮次 | 备注 |
 |------|---------|------|------|------|------|---------|-------|-----|---------|------|
-| M0 | M0-platform | 平台底座（starters + platform 骨架） | - | DONE | - | - | - | - | - | 已有骨架代码 |
+| P1 | P1-smoke | 冒烟测试：健康检查端点 | - | DONE | B | bc-cbe7af07 | run-748b3c27 | #2 (merged) | 0 | 254s完成，1/1测试通过 |
+| M0 | M0-platform | 平台底座（starters + platform 骨架） | - | DONE | - | - | - | - | - | 已有骨架代码 + P1健康端点 |
 | M1 | M1-backend | 认证与权限（Casdoor 对接 + Casbin RBAC） | M0 | READY | - | - | - | - | - | 等待简报生成 |
 | M2 | M2-backend | 数据中心主数据（客户/商品/渠道/员工） | M0, M1 | PENDING | - | - | - | - | - | 依赖 M1 完成 |
 | M3 | M3-backend | 配置中心（行业定义 + 用户/角色/权限） | M0, M1 | PENDING | - | - | - | - | - | 依赖 M1 完成 |
@@ -86,3 +87,5 @@ M0 平台底座
 | 日期 | 变更 |
 |------|------|
 | 2026-08-20 | 初始化任务看板，M0 标记 DONE（骨架代码已存在），M1 标记 READY |
+| 2026-08-20 | P1 冒烟测试通过：Cursor Cloud Agent 254s 完成 /api/v1/health 端点，PR#2 合并，全链路验证通过 |
+| 2026-08-20 | cursor_client.sh 修复：API v1 格式(autoCreatePR/model/status枚举)、jq_shim 重写(数组索引+多级//)、新增 status 命令 |
