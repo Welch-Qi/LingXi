@@ -1,0 +1,16 @@
+{
+  "taskId": "M7-backend",
+  "status": "COMPLETED",
+  "summary": "补齐 keyword 搜索 + 分页格式 + 8 个单元测试",
+  "testCount": 8,
+  "testPassed": 8,
+  "testFailed": 0,
+  "files": [
+    "lingxi-knowledge/src/main/java/com/lingxi/knowledge/app/KnowledgeController.java",
+    "lingxi-knowledge/src/test/java/com/lingxi/knowledge/app/KnowledgeControllerTest.java",
+    "lingxi-knowledge/src/test/java/com/lingxi/knowledge/KnowledgeTestApplication.java",
+    "lingxi-knowledge/pom.xml",
+    "artifacts/M7-backend/result.json"
+  ],
+  "notes": "GET 列表端点新增 pageNo/pageSize/keyword 参数，返回 {list,total,pageNo,pageSize} 统一分页格式；测试采用 @WebMvcTest + MockBean 风格，参考 lingxi-iam"
+}
