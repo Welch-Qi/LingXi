@@ -118,7 +118,14 @@ def main():
             parsed = json.loads(result)
             print(json.dumps(parsed, ensure_ascii=False, indent=2))
         except Exception:
-            print(result)
+            # jq 模板用不带引号的键（如 {prompt: {...}}），
+            # Python json.loads 要求键带引号，这里补引号
+            fixed = re.sub(r'([{,]\s*)(\w+)(\s*:)', r'\1"\2"\3', result)
+            try:
+                parsed = json.loads(fixed)
+                print(json.dumps(parsed, ensure_ascii=False, indent=2))
+            except Exception:
+                print(result)
         return
 
     # echo "$json" | jq -r '.field'
