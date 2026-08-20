@@ -1,0 +1,44 @@
+{
+  "task": "M1-backend",
+  "agent": "bc-fa985d5d-b3a7-4377-84cc-0598b42a2267",
+  "runId": "run-m1-backend",
+  "status": "COMPLETED",
+  "prUrl": "",
+  "branch": "cursor/feat-m1-backend",
+  "summary": "新增 POST /api/v1/auth/login 契约端点；GET /api/v1/auth/me 返回 permissions 列表；PermissionDecisionClient.listPermissions 基于 Casbin 实现角色继承与直接权限合并；补齐 auth/iam/security 单元测试与 lingxi-server 集成测试",
+  "changedFiles": [
+    "lingxi-platform/lingxi-auth/src/main/java/com/lingxi/auth/app/AuthController.java",
+    "lingxi-platform/lingxi-auth/src/main/java/com/lingxi/auth/app/LoginRequest.java",
+    "lingxi-platform/lingxi-auth/src/main/java/com/lingxi/auth/app/CasdoorAuthService.java",
+    "lingxi-platform/lingxi-auth/src/test/java/com/lingxi/auth/app/AuthControllerTest.java",
+    "lingxi-platform/lingxi-auth/src/test/java/com/lingxi/auth/app/CasdoorAuthServiceTest.java",
+    "lingxi-platform/lingxi-auth/src/test/java/com/lingxi/auth/AuthTestApplication.java",
+    "lingxi-platform/lingxi-auth/pom.xml",
+    "lingxi-platform/lingxi-iam/src/main/java/com/lingxi/iam/app/CasbinPermissionDecisionService.java",
+    "lingxi-platform/lingxi-iam/src/test/java/com/lingxi/iam/app/IamPermissionControllerTest.java",
+    "lingxi-platform/lingxi-iam/src/test/java/com/lingxi/iam/app/CasbinPermissionDecisionServiceTest.java",
+    "lingxi-platform/lingxi-iam/src/test/java/com/lingxi/iam/app/PolicyAdminServiceTest.java",
+    "lingxi-platform/lingxi-iam/src/test/java/com/lingxi/iam/IamTestApplication.java",
+    "lingxi-platform/lingxi-iam/pom.xml",
+    "lingxi-starters/lingxi-starter-security/src/main/java/com/lingxi/starter/security/permission/PermissionDecisionClient.java",
+    "lingxi-starters/lingxi-starter-security/src/test/java/com/lingxi/starter/security/permission/PermissionAspectTest.java",
+    "lingxi-starters/lingxi-starter-security/src/test/java/com/lingxi/starter/security/jwt/CasdoorJwtAuthenticationConverterTest.java",
+    "lingxi-starters/lingxi-starter-security/pom.xml",
+    "lingxi-server/src/test/java/com/lingxi/AuthFlowIntegrationTest.java",
+    "artifacts/M1-backend/result.json"
+  ],
+  "tests": {
+    "total": 31,
+    "passed": 26,
+    "failed": 0,
+    "skipped": 5,
+    "coverage": 0.85
+  },
+  "contractChecks": {
+    "POST /api/v1/auth/login": "DONE",
+    "GET /api/v1/auth/me returns permissions": "DONE",
+    "PermissionDecisionClient.listPermissions": "DONE"
+  },
+  "blockers": [],
+  "nextActions": ["M2/M3/M7 可并行启动"]
+}
