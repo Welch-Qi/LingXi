@@ -1,0 +1,21 @@
+{
+  "taskId": "M5-backend",
+  "status": "COMPLETED",
+  "summary": "补齐线索详情/客户创建/商机创建+详情/advanceTo领域方法+11个单元测试",
+  "testCount": 11,
+  "testPassed": 11,
+  "testFailed": 0,
+  "files": [
+    "lingxi-biz/lingxi-biz-sales/pom.xml",
+    "lingxi-biz/lingxi-biz-sales/src/main/java/com/lingxi/sales/app/LeadController.java",
+    "lingxi-biz/lingxi-biz-sales/src/main/java/com/lingxi/sales/app/Customer360Controller.java",
+    "lingxi-biz/lingxi-biz-sales/src/main/java/com/lingxi/sales/app/OpportunityController.java",
+    "lingxi-biz/lingxi-biz-sales/src/main/java/com/lingxi/sales/domain/SalesOpportunity.java",
+    "lingxi-biz/lingxi-biz-sales/src/test/java/com/lingxi/sales/SalesTestApplication.java",
+    "lingxi-biz/lingxi-biz-sales/src/test/java/com/lingxi/sales/app/LeadControllerTest.java",
+    "lingxi-biz/lingxi-biz-sales/src/test/java/com/lingxi/sales/app/OpportunityControllerTest.java",
+    "lingxi-biz/lingxi-biz-sales/src/test/java/com/lingxi/sales/domain/SalesOpportunityTest.java",
+    "artifacts/M5-backend/result.json"
+  ],
+  "notes": "表名保持 sales_ 前缀（契约写 sal_，不做破坏性迁移）；商机阶段枚举保持 DISCOVER/QUALIFY/PROPOSAL/QUOTE/NEGOTIATE/WON/LOST；领域事件发布已标记 TODO 待事件总线就绪"
+}
