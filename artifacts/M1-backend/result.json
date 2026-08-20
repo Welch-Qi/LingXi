@@ -3,7 +3,7 @@
   "agent": "bc-fa985d5d-b3a7-4377-84cc-0598b42a2267",
   "runId": "run-m1-backend",
   "status": "COMPLETED",
-  "prUrl": "",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/3",
   "branch": "cursor/feat-m1-backend",
   "summary": "新增 POST /api/v1/auth/login 契约端点；GET /api/v1/auth/me 返回 permissions 列表；PermissionDecisionClient.listPermissions 基于 Casbin 实现角色继承与直接权限合并；补齐 auth/iam/security 单元测试与 lingxi-server 集成测试",
   "changedFiles": [
