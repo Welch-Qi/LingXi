@@ -148,6 +148,7 @@ public class LeadController {
             body.setScore(0);
         }
         salesLeadMapper.insert(body);
+        // TODO: 待事件总线基础设施就绪后发布 lx.sal.lead.created 事件
 
         boolean inquiryLike = isInquirySource(body.getSourceChannel());
         if (inquiryLike) {
@@ -184,6 +185,29 @@ public class LeadController {
         return Result.ok(leadDedupService.check(resolveTenantId(), criteria));
     }
 
+    @GetMapping("/{id}")
+    @RequirePermission("sal:lead:view")
+    @RequireDataScope
+    public Result<Map<String, Object>> detail(@PathVariable Long id) {
+        Long tenantId = resolveTenantId();
+        SalesLead lead = requireLead(tenantId, id);
+        long followCount = followMapper.selectCount(new LambdaQueryWrapper<SalesLeadFollow>()
+                .eq(SalesLeadFollow::getTenantId, tenantId)
+                .eq(SalesLeadFollow::getLeadId, id));
+        SalesLeadFollow recentFollow = followMapper.selectOne(new LambdaQueryWrapper<SalesLeadFollow>()
+                .eq(SalesLeadFollow::getTenantId, tenantId)
+                .eq(SalesLeadFollow::getLeadId, id)
+                .orderByDesc(SalesLeadFollow::getId)
+                .last("LIMIT 1"));
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("lead", lead);
+        data.put("followCount", followCount);
+        if (recentFollow != null) {
+            data.put("recentFollow", recentFollow);
+        }
+        return Result.ok(data);
+    }
+
     @PostMapping("/{id}/assignment")
     @RequirePermission("sal:lead:assign")
     public Result<SalesLead> assign(@PathVariable Long id, @RequestBody Map<String, Object> body) {
@@ -196,6 +220,7 @@ public class LeadController {
             lead.setClaimedAt(Instant.now());
             lead.setPoolAt(null);
             salesLeadMapper.updateById(lead);
+            // TODO: 待事件总线基础设施就绪后发布 lx.sal.lead.assigned 事件
         }
         return Result.ok(lead);
     }
