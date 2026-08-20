@@ -42,7 +42,7 @@ public class CasdoorAuthService {
                 .queryParam("redirect_uri", casdoor.getRedirectUri())
                 .queryParam("scope", "openid profile email")
                 .queryParam("state", resolvedState)
-                .build(true)
+                .build()
                 .toUriString();
         Map<String, String> data = new LinkedHashMap<>();
         data.put("loginUrl", url);
