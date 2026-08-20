@@ -5,6 +5,8 @@
   "testCount": 8,
   "testPassed": 8,
   "testFailed": 0,
+  "branch": "cursor/feat-m4-backend",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/9",
   "files": [
     "lingxi-biz/lingxi-biz-market/pom.xml",
     "lingxi-biz/lingxi-biz-market/src/main/java/com/lingxi/market/app/MarketController.java",
