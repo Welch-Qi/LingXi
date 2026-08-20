@@ -1,6 +1,7 @@
 package com.lingxi;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -10,6 +11,7 @@ import org.springframework.test.context.DynamicPropertySource;
  * 若库未就绪，可加 -Dsmoke.skip=true 跳过（CI 用）。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DisabledIfSystemProperty(named = "smoke.skip", matches = "true")
 class LingxiServerSmokeIT {
 
     @DynamicPropertySource

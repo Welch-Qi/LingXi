@@ -26,6 +26,12 @@
 - `traceId`: 全链路追踪 ID，必须回传
 - 禁止自行定义响应体
 
+### M0.1.1 平台健康检查
+
+| 接口 | 方法 | 路径 | 说明 |
+|------|------|------|------|
+| 平台存活探测 | GET | `/api/v1/health` | 无需认证；返回统一 Result，`data.status` 为 `UP`/`DOWN`，`data.service` 为 `spring.application.name` |
+
 ### M0.2 异常体系
 
 - 业务异常一律抛 `BizException(ErrorCode)`
