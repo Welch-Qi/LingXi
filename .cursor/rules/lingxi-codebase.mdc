@@ -1,0 +1,37 @@
+# 灵犀系统 Cursor Agent 代码规范
+
+> 本文件被 Cursor Agent 自动读取，作为执行任务时的代码风格约束。
+> 权威源：AGENTS.md、docs/灵犀系统技术规约1.0.md
+
+## 通用
+- 分支命名：`cursor/feat-{模块}-{描述}`
+- Commit message 格式：`{类型}({模块}): {描述}`，类型 feat/fix/refactor/test/docs/chore
+- 禁止修改 contracts.md（契约变更需开 issue 等人仲裁）
+- 禁止修改 AGENTS.md、TASKS.md（由协调 Agent 维护）
+- 任务产出必须写入 `artifacts/{模块}/result.json`（格式见 artifacts/README.md）
+
+## Java（后端）
+- Java 17 LTS，record 用于不可变 DTO
+- 统一响应体（lingxi-starter-core），禁止自行定义
+- 异常一律抛 BizException(ErrorCode)
+- 参数校验用 Jakarta Validation 注解
+- 事务边界在 app 层（@Transactional 只出现在 app 层）
+- 方法不超过 80 行，类不超过 800 行
+- 禁止魔法值，必须提取常量
+
+## TypeScript（前端）
+- TypeScript 5.7+ strict 模式，禁止 any
+- Server Component 优先，需要交互时标记 "use client"
+- 接口数据走 @tanstack/react-query，禁止 fetch 直接调后端
+- 表单用 react-hook-form + zod
+- 禁止硬编码中文文案（走 next-intl）
+
+## Python（AI）
+- Python 3.11，类型注解必须
+- LLM 调用经 llm-gateway，禁止直连模型厂商
+- 提示词存知识中心提示词库，禁止代码内联
+
+## 测试
+- 领域层核心逻辑覆盖率 >=80%
+- 每个 API：正常+参数校验+权限+跨租户+幂等 五类用例
+- 测试通过后输出 junit.xml / coverage.json
