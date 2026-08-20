@@ -2,6 +2,8 @@
   "taskId": "M6-backend",
   "status": "COMPLETED",
   "summary": "补齐社媒账号绑定/解绑+ai-content契约端点+8个单元测试",
+  "branch": "cursor/feat-m6-backend",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/7",
   "testCount": 8,
   "testPassed": 8,
   "testFailed": 0,
