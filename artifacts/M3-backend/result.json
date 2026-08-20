@@ -2,6 +2,8 @@
   "taskId": "M3-backend",
   "status": "COMPLETED",
   "summary": "修复行业路径+用户/角色/权限CRUD+10个单元测试",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/6",
+  "branch": "cursor/feat-m3-backend",
   "testCount": 10,
   "testPassed": 10,
   "testFailed": 0,
