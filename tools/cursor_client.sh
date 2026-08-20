@@ -38,21 +38,46 @@ log_warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
 
 # ---- 前置检查 ----
+# 用法: check_env [cursor] [github]
+# 不传参 = 两者都检查；传 cursor = 只检查 CURSOR_API_KEY；传 github = 只检查 GITHUB_TOKEN
 check_env() {
-    if [ -z "${CURSOR_API_KEY:-}" ]; then
+    local need_cursor=1
+    local need_github=1
+    if [ "${1:-}" = "cursor" ]; then need_github=0; fi
+    if [ "${1:-}" = "github" ]; then need_cursor=0; fi
+
+    if [ "$need_cursor" -eq 1 ] && [ -z "${CURSOR_API_KEY:-}" ]; then
         log_error "CURSOR_API_KEY 未设置，请先 source .env"
         exit 1
     fi
-    if [ -z "${GITHUB_TOKEN:-}" ]; then
+    if [ "$need_github" -eq 1 ] && [ -z "${GITHUB_TOKEN:-}" ]; then
         log_error "GITHUB_TOKEN 未设置，请先 source .env"
         exit 1
     fi
-    for cmd in curl git jq; do
+    # jq 或 Python 二选一
+    if command -v jq >/dev/null 2>&1; then
+        JQ_CMD="jq"
+    elif command -v python >/dev/null 2>&1; then
+        JQ_CMD="python $(dirname "$0")/jq_shim.py"
+    else
+        log_error "需要 jq 或 python，请先安装其一"
+        exit 1
+    fi
+    for cmd in curl git; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
             log_error "$cmd 未安装，请先安装"
             exit 1
         fi
     done
+}
+
+# jq 包装函数
+jq() {
+    if command -v jq >/dev/null 2>&1; then
+        command jq "$@"
+    else
+        python "$(dirname "$0")/jq_shim.py" "$@"
+    fi
 }
 
 # ============================================================
@@ -210,7 +235,7 @@ poll() {
 # 示例：./cursor_client.sh fetch_result cursor/feat-m4-backend M4-backend
 # ============================================================
 fetch_result() {
-    check_env
+    check_env github
     local branch="$1"
     local module_name="$2"
 
@@ -289,7 +314,7 @@ fetch_result() {
 # merge_method: squash (默认) | merge | rebase
 # ============================================================
 merge_pr() {
-    check_env
+    check_env github
     local pr_url="$1"
     local merge_method="${2:-squash}"
 
