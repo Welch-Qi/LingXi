@@ -1,0 +1,25 @@
+{
+  "taskId": "M3-backend",
+  "status": "COMPLETED",
+  "summary": "修复行业路径+用户/角色/权限CRUD+10个单元测试",
+  "testCount": 10,
+  "testPassed": 10,
+  "testFailed": 0,
+  "files": [
+    "lingxi-config/pom.xml",
+    "lingxi-config/src/main/java/com/lingxi/config/app/ConfigController.java",
+    "lingxi-config/src/main/java/com/lingxi/config/domain/CcUser.java",
+    "lingxi-config/src/main/java/com/lingxi/config/domain/CcRole.java",
+    "lingxi-config/src/main/java/com/lingxi/config/domain/CcPermission.java",
+    "lingxi-config/src/main/java/com/lingxi/config/domain/IndustryItem.java",
+    "lingxi-config/src/main/java/com/lingxi/config/domain/PermissionNode.java",
+    "lingxi-config/src/main/java/com/lingxi/config/infra/mapper/CcUserMapper.java",
+    "lingxi-config/src/main/java/com/lingxi/config/infra/mapper/CcRoleMapper.java",
+    "lingxi-config/src/main/java/com/lingxi/config/infra/mapper/CcPermissionMapper.java",
+    "lingxi-config/src/test/java/com/lingxi/config/ConfigTestApplication.java",
+    "lingxi-config/src/test/java/com/lingxi/config/app/ConfigControllerTest.java",
+    "lingxi-server/src/main/resources/db/migration/V202608201400__config_user_role_permission.sql",
+    "artifacts/M3-backend/result.json"
+  ],
+  "notes": "行业 GET 路径改为 /industries；新增 PUT /industries 批量更新；用户/角色分页 CRUD 与权限树查询；Flyway 新建 cc_user/cc_role/cc_role_permission/cc_permission 表（lingxi_platform schema，cc_ 前缀）；settings 端点保持不变。"
+}
