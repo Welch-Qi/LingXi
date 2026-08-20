@@ -1,0 +1,18 @@
+{
+  "taskId": "M6-backend",
+  "status": "COMPLETED",
+  "summary": "补齐社媒账号绑定/解绑+ai-content契约端点+8个单元测试",
+  "branch": "cursor/feat-m6-backend",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/7",
+  "testCount": 8,
+  "testPassed": 8,
+  "testFailed": 0,
+  "files": [
+    "lingxi-biz/lingxi-biz-marketing/pom.xml",
+    "lingxi-biz/lingxi-biz-marketing/src/main/java/com/lingxi/marketing/app/MarketingController.java",
+    "lingxi-biz/lingxi-biz-marketing/src/test/java/com/lingxi/marketing/MarketingTestApplication.java",
+    "lingxi-biz/lingxi-biz-marketing/src/test/java/com/lingxi/marketing/app/MarketingControllerTest.java",
+    "artifacts/M6-backend/result.json"
+  ],
+  "notes": "新增 POST/DELETE social-accounts 与 POST ai-content 契约端点；generateContent 私有方法供 /contents/generate 与 /ai-content 复用；authStatus 初始值 DISCONNECTED（对齐 DDL 默认与种子数据）；保留 /contents/generate 兼容前端；内容生成处已添加 lx.mkg.content.generated 事件 TODO"
+}
