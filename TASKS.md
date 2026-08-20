@@ -14,11 +14,11 @@
 | M1 | M1-backend | 认证与权限（Casdoor 对接 + Casbin RBAC） | M0 | DONE | B | bc-fa985d5d | run-d29a8a8c | #3 (merged) | 0 | 311s完成，31测试(26通过/5跳过/0失败)，覆盖率85% |
 | M2 | M2-backend | 数据中心主数据（客户/商品/渠道/员工） | M0, M1 | DONE | B | bc-8ce549ac | run-03be0d8e | #5 (merged) | 0 | 176s，8测试全通过，新增PATCH+员工CRUD+keyword搜索 |
 | M3 | M3-backend | 配置中心（行业定义 + 用户/角色/权限） | M0, M1 | DONE | B | bc-4ce778df | run-33647b54 | #6 (merged) | 0 | 179s，10测试全通过，新增用户/角色/权限CRUD+4张新表 |
-| M4 | M4-backend | 市场域后端（搜索指数/热词/机会扫描） | M0, M2 | READY | - | - | - | - | - | 依赖 M2 已完成，可派发 |
+| M4 | M4-backend | 市场域后端（搜索指数/热词/机会扫描） | M0, M2 | DISPATCHED | B | bc-081e6252 | run-03ae2b10 | - | 0 | Agent 运行中 |
 | M4 | M4-frontend | 市场域前端页面 | M4-backend | PENDING | - | - | - | - | - | 依赖 M4 后端 API |
-| M5 | M5-backend | 销售域后端（线索/客户/商机） | M0, M2 | READY | - | - | - | - | - | 依赖 M2 已完成，可派发 |
+| M5 | M5-backend | 销售域后端（线索/客户/商机） | M0, M2 | DISPATCHED | B | bc-3f886876 | run-f7d23b5d | - | 0 | Agent 运行中 |
 | M5 | M5-frontend | 销售域前端页面 | M5-backend | PENDING | - | - | - | - | - | 依赖 M5 后端 API |
-| M6 | M6-backend | 营销域后端（社媒账号/AI 内容） | M0, M2 | READY | - | - | - | - | - | 依赖 M2 已完成，可派发 |
+| M6 | M6-backend | 营销域后端（社媒账号/AI 内容） | M0, M2 | DISPATCHED | B | bc-5eddff8d | run-605b8928 | - | 0 | Agent 运行中 |
 | M6 | M6-frontend | 营销域前端页面 | M6-backend | PENDING | - | - | - | - | - | 依赖 M6 后端 API |
 | M7 | M7-backend | 知识中心（模板/话术/提示词） | M0, M1 | DONE | B | bc-58dea20a | run-31a9efe4 | #4 (merged) | 0 | 146s，8测试全通过，keyword搜索+分页格式 |
 | M7 | M7-frontend | 知识中心前端页面 | M7-backend | PENDING | - | - | - | - | - | 依赖 M7 后端 API |
