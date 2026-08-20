@@ -1,0 +1,18 @@
+{
+  "taskId": "M4-backend",
+  "status": "COMPLETED",
+  "summary": "补齐search-trends/hot-keywords/rising-keywords/region-heat端点+8个单元测试",
+  "testCount": 8,
+  "testPassed": 8,
+  "testFailed": 0,
+  "files": [
+    "lingxi-biz/lingxi-biz-market/pom.xml",
+    "lingxi-biz/lingxi-biz-market/src/main/java/com/lingxi/market/app/MarketController.java",
+    "lingxi-biz/lingxi-biz-market/src/main/java/com/lingxi/market/domain/RegionHeatView.java",
+    "lingxi-biz/lingxi-biz-market/src/main/java/com/lingxi/market/infra/mapper/MktSearchTrendMapper.java",
+    "lingxi-biz/lingxi-biz-market/src/test/java/com/lingxi/market/MarketTestApplication.java",
+    "lingxi-biz/lingxi-biz-market/src/test/java/com/lingxi/market/app/MarketControllerTest.java",
+    "artifacts/M4-backend/result.json"
+  ],
+  "notes": "保留原有 /trends 与 /keywords 端点以兼容前端；opportunities 端点已添加 lx.mkt.opportunity.discovered 事件 TODO 标记；rising-keywords 过滤 trend=UP（与种子数据一致）"
+}
