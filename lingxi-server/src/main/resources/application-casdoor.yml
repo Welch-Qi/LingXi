@@ -1,0 +1,19 @@
+# 激活：java -jar ... --spring.profiles.active=casdoor
+# 或环境变量 SPRING_PROFILES_ACTIVE=casdoor
+#
+# 前置：docker compose -f deploy/docker-compose.casdoor.yml up -d
+# 见 docs/Casdoor-Casbin对接说明.md
+
+lingxi:
+  security:
+    # 强制 JWT；关闭旁路头
+    dev-bypass: false
+    casdoor:
+      endpoint: http://localhost:8000
+      client-id: lingxi-web
+      client-secret: lingxi-secret
+      organization: lingxi
+      application: lingxi-web
+      redirect-uri: http://localhost:3000/auth/callback
+      tenant-claim: tenantId
+      roles-claim: roles

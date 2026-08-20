@@ -1,0 +1,3 @@
+﻿customer=200|{"code":"0","message":"success","data":{"id":348100044047519744,"legacyId":null,"tenantId":10086,"createdBy":10086001,"createdAt":"2026-08-18T13:45:17.888466700Z","updatedBy":10086001,"updatedAt":"202
+tpl=ERR
+run=200|{"code":"0","message":"success","data":{"status":"runtime_unavailable","message":"I/O error on POST request for \"http://127.0.0.1:8090/api/v1/agent/run\": Connection refused: gets

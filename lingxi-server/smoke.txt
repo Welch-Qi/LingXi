@@ -1,0 +1,4 @@
+﻿brand_put=200|{"code":"0","message":"success","data":{"key":"brand","value":{"name":"NovaTech BAPI","slogan":"smoke2"}},"traceId":"1ca515bb77254b689f30db1632923e70"}
+brand_get=200|{"code":"0","message":"success","data":{"key":"brand","value":{"name":"NovaTech BAPI","slogan":"smoke2"}},"traceId":"bfef3988b21c4d3a888b0d20cf11ab8e"}
+customer=ERR|远程服务器返回错误: (500) 内部服务器错误。
+agent=200|{"code":"0","message":"success","data":{"agentCode":"market_analyst","config":{"enabled":true,"note":"smoke2"}},"traceId":"b5e1baceee7e4cac8b98fcdf2069a4e2"}

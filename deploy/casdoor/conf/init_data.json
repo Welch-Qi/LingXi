@@ -1,0 +1,142 @@
+{
+  "organizations": [
+    {
+      "owner": "admin",
+      "name": "lingxi",
+      "displayName": "Lingxi",
+      "websiteUrl": "http://localhost:3000",
+      "favicon": "",
+      "passwordType": "bcrypt",
+      "passwordOptions": ["AtLeast6"],
+      "countryCodes": ["CN", "US"],
+      "languages": ["zh", "en"],
+      "defaultApplication": "lingxi-web",
+      "tags": [],
+      "initScore": 2000,
+      "enableSoftDeletion": false,
+      "isProfilePublic": true
+    }
+  ],
+  "applications": [
+    {
+      "owner": "admin",
+      "name": "lingxi-web",
+      "displayName": "Lingxi Web",
+      "logo": "",
+      "homepageUrl": "http://localhost:3000",
+      "organization": "lingxi",
+      "cert": "cert-built-in",
+      "enablePassword": true,
+      "enableSignUp": false,
+      "disableSignin": false,
+      "clientId": "lingxi-web",
+      "clientSecret": "lingxi-secret",
+      "providers": [],
+      "signinMethods": [
+        { "name": "Password", "displayName": "Password", "rule": "All" }
+      ],
+      "grantTypes": [
+        "authorization_code",
+        "refresh_token",
+        "client_credentials"
+      ],
+      "redirectUris": [
+        "http://localhost:3000/auth/callback"
+      ],
+      "tokenFormat": "JWT",
+      "expireInHours": 168,
+      "refreshExpireInHours": 720
+    }
+  ],
+  "users": [
+    {
+      "owner": "lingxi",
+      "name": "linqitao",
+      "type": "normal-user",
+      "password": "Admin123!",
+      "displayName": "林启涛",
+      "email": "lin@novatech.com",
+      "tag": "role_admin",
+      "score": 2000,
+      "ranking": 1,
+      "isAdmin": true,
+      "isForbidden": false,
+      "isDeleted": false,
+      "signupApplication": "lingxi-web",
+      "properties": {
+        "userId": "10086001",
+        "tenantId": "10086",
+        "dataScope": "ALL",
+        "roles": "role_admin"
+      }
+    },
+    {
+      "owner": "lingxi",
+      "name": "he",
+      "type": "normal-user",
+      "password": "Admin123!",
+      "displayName": "何销售",
+      "email": "he@novatech.com",
+      "tag": "role_sales",
+      "score": 2000,
+      "ranking": 2,
+      "isAdmin": false,
+      "isForbidden": false,
+      "isDeleted": false,
+      "signupApplication": "lingxi-web",
+      "properties": {
+        "userId": "10086003",
+        "tenantId": "10086",
+        "dataScope": "DEPT",
+        "roles": "role_sales"
+      }
+    },
+    {
+      "owner": "lingxi",
+      "name": "su",
+      "type": "normal-user",
+      "password": "Admin123!",
+      "displayName": "苏营销",
+      "email": "su@novatech.com",
+      "tag": "role_marketing",
+      "score": 2000,
+      "ranking": 3,
+      "isAdmin": false,
+      "isForbidden": false,
+      "isDeleted": false,
+      "signupApplication": "lingxi-web",
+      "properties": {
+        "userId": "10086002",
+        "tenantId": "10086",
+        "dataScope": "DEPT",
+        "roles": "role_marketing"
+      }
+    }
+  ],
+  "roles": [
+    {
+      "owner": "lingxi",
+      "name": "role_admin",
+      "displayName": "管理员",
+      "isEnabled": true,
+      "users": ["lingxi/linqitao"],
+      "roles": []
+    },
+    {
+      "owner": "lingxi",
+      "name": "role_sales",
+      "displayName": "销售",
+      "isEnabled": true,
+      "users": ["lingxi/he"],
+      "roles": []
+    },
+    {
+      "owner": "lingxi",
+      "name": "role_marketing",
+      "displayName": "营销",
+      "isEnabled": true,
+      "users": ["lingxi/su"],
+      "roles": []
+    }
+  ]
+}

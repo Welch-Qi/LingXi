@@ -1,0 +1,46 @@
+# Casdoor 本地联调（可选）
+# 启动: docker compose -f deploy/docker-compose.casdoor.yml up -d
+# 控制台: http://localhost:8000  (内置 admin / 123)
+#
+# init_data.json 会写入：
+# - Organization: lingxi
+# - Application: lingxi-web（clientId/secret 与 application.yml 一致）
+# - 演示用户 linqitao / he / su（密码 Admin123!）
+# - Redirect: http://localhost:3000/auth/callback
+#
+# 首次启动后若 init 未生效：进入控制台手工核对 Application.Redirect URLs
+# 与 Client ID/Secret，或删掉 volume 后重建：
+#   docker compose -f deploy/docker-compose.casdoor.yml down -v
+#   docker compose -f deploy/docker-compose.casdoor.yml up -d
+
+services:
+  casdoor-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: casdoor
+      POSTGRES_PASSWORD: casdoor
+      POSTGRES_DB: casdoor
+    ports:
+      - "5433:5432"
+    volumes:
+      - casdoor-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casdoor -d casdoor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  casdoor:
+    image: casbin/casdoor:v1.681.0
+    depends_on:
+      casdoor-db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      RUNNING_IN_DOCKER: "true"
+    volumes:
+      - ./casdoor/conf:/conf
+
+volumes:
+  casdoor-pg:

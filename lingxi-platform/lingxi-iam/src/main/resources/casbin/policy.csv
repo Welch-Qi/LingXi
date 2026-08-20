@@ -1,0 +1,65 @@
+p, role_admin, *, *, *
+p, role_admin, *, cc:perm:view, allow
+
+# NovaTech tenant 10086 — demo roles (see docs/NovaTech演示租户Seed规范.md)
+p, role_product, 10086, uw:home:view, allow
+p, role_product, 10086, mkt:trend:view, allow
+p, role_product, 10086, mkt:opportunity:view, allow
+p, role_product, 10086, dm:dashboard:view, allow
+p, role_product, 10086, dm:qa:ask, allow
+p, role_product, 10086, dc:customer:manage, allow
+
+p, role_marketing, 10086, uw:home:view, allow
+p, role_marketing, 10086, mkg:social:view, allow
+p, role_marketing, 10086, mkg:content:generate, allow
+p, role_marketing, 10086, dc:customer:manage, allow
+
+p, role_sales, 10086, uw:home:view, allow
+p, role_sales, 10086, sal:lead:view, allow
+p, role_sales, 10086, sal:lead:create, allow
+p, role_sales, 10086, sal:lead:assign, allow
+p, role_sales, 10086, sal:lead:follow, allow
+p, role_sales, 10086, sal:customer:view, allow
+p, role_sales, 10086, sal:customer:view360, allow
+p, role_sales, 10086, sal:opportunity:advance, allow
+p, role_sales, 10086, sal:session:view, allow
+p, role_sales, 10086, sal:session:message, allow
+p, role_sales, 10086, sal:session:convert, allow
+p, role_sales, 10086, dm:dashboard:view, allow
+p, role_sales, 10086, dc:customer:manage, allow
+p, role_sales, 10086, uw:task:view, allow
+p, role_sales, 10086, uw:inquiry:view, allow
+
+p, role_ops, 10086, uw:home:view, allow
+p, role_ops, 10086, mkg:social:view, allow
+p, role_ops, 10086, mkg:content:generate, allow
+p, role_ops, 10086, dc:customer:manage, allow
+p, role_ops, 10086, kc:knowledge:manage, allow
+p, role_ops, 10086, cc:user:manage, allow
+p, role_ops, 10086, cc:setting:manage, allow
+p, role_ops, 10086, ac:agent:view, allow
+p, role_ops, 10086, ac:agent:config, allow
+
+p, role_agent, 10086, uw:home:view, allow
+p, role_agent, 10086, ac:agent:view, allow
+p, role_agent, 10086, ac:agent:config, allow
+p, role_agent, 10086, dc:customer:manage, allow
+p, role_agent, 10086, kc:knowledge:manage, allow
+
+# legacy domain "1" kept for older local bypass samples
+p, role_sales, 1, sal:lead:view, allow
+p, role_sales, 1, sal:lead:create, allow
+p, role_sales, 1, sal:customer:view, allow
+p, role_ops, 1, ops:access, allow
+
+# grouping: stable demo user ids（domain 不可为 *，见 model.conf）
+g, u_admin, role_admin, 1
+g, u_admin, role_admin, 10086
+g, 10086001, role_admin, 10086
+g, 10086011, role_product, 10086
+g, 10086002, role_marketing, 10086
+g, 10086003, role_sales, 10086
+g, 10086007, role_ops, 10086
+g, 10086021, role_agent, 10086
+g, u_sales, role_sales, 1
+g, u_sales, role_sales, 10086

@@ -1,0 +1,62 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+
+# Node / pnpm / Next
+node_modules/
+.pnpm-store/
+dist/
+build/
+.next/
+.turbo/
+out/
+*.tsbuildinfo
+.eslintcache
+coverage/
+
+# Python / uv
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.uv/
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+local.properties
+
+# Logs & temp
+*.log
+logs/
+tmp/
+temp/
+.cache/
+
+# Local build tools (Maven installation, not source)
+.tools/

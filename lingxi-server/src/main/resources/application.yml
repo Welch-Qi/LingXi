@@ -1,0 +1,102 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: lingxi-server
+  datasource:
+    # 默认对齐源仓 compose；SSH 隧道联调请用环境变量覆盖（常见：库 lingxi_dev）
+    # SPRING_DATASOURCE_URL / SPRING_DATASOURCE_USERNAME / SPRING_DATASOURCE_PASSWORD
+    url: jdbc:postgresql://localhost:5432/lingxi
+    username: lingxi
+    password: lingxi
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    create-schemas: true
+  # Nacos 配置/注册占位（联调时取消注释并补充地址）
+  # cloud:
+  #   nacos:
+  #     discovery:
+  #       server-addr: localhost:8848
+  #       namespace: lingxi
+  #     config:
+  #       server-addr: localhost:8848
+  #       namespace: lingxi
+  #       file-extension: yaml
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-}]"
+
+# ---------- Casdoor / Casbin ----------
+lingxi:
+  security:
+    enabled: true
+    # 本地无 Casdoor 时开启；生产必须 false
+    dev-bypass: true
+    permit-all:
+      - /actuator/health
+      - /actuator/info
+      - /api/v1/auth/login-url
+      - /api/v1/auth/callback
+      - /api/v1/auth/logout-url
+      # P0：站点 Client Secret 鉴权；生产改 M2M JWT 后移除此行
+      - /api/v1/open/site/**
+      - /error
+    casdoor:
+      endpoint: http://localhost:8000
+      client-id: lingxi-web
+      client-secret: lingxi-secret
+      organization: lingxi
+      application: lingxi-web
+      redirect-uri: http://localhost:3000/auth/callback
+      # jwk-set-uri 默认 {endpoint}/.well-known/jwks
+      tenant-claim: tenantId
+      roles-claim: roles
+  iam:
+    casbin:
+      store: file
+      model-path: classpath:casbin/model.conf
+      policy-path: classpath:casbin/policy.csv
+  open-site:
+    enabled: true
+    require-idempotency-key: true
+    allow-client-secret-auth: true
+    sites:
+      - site-id: site_demo
+        tenant-id: 10086
+        channel: storefront
+        display-name: SmartEva Demo
+        client-secret: demo-secret
+  agent:
+    runtime-base-url: http://127.0.0.1:8090
+  id:
+    worker-id: 1
+  file:
+    mode: local
+    local-base-dir: ./data/files
+    public-base-url: http://127.0.0.1:8080/api/v1/files
+    default-expire-seconds: 900

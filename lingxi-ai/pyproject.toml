@@ -1,0 +1,16 @@
+[project]
+name = "lingxi-ai"
+version = "0.1.0"
+description = "Lingxi AI workspace (Agent Runtime + data jobs)"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+  "lingxi-agent-runtime",
+  "lingxi-data-jobs",
+]
+
+[tool.uv]
+package = false
