@@ -5,6 +5,8 @@
   "testCount": 8,
   "testPassed": 8,
   "testFailed": 0,
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/4",
+  "branch": "cursor/feat-m7-backend",
   "files": [
     "lingxi-knowledge/src/main/java/com/lingxi/knowledge/app/KnowledgeController.java",
     "lingxi-knowledge/src/test/java/com/lingxi/knowledge/app/KnowledgeControllerTest.java",
