@@ -24,6 +24,7 @@ public class LingxiSecurityProperties {
     private List<String> permitAll = new ArrayList<>(List.of(
             "/actuator/health",
             "/actuator/info",
+            "/api/v1/health",
             "/api/v1/auth/login-url",
             "/api/v1/auth/callback",
             "/error"
