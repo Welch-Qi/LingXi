@@ -55,10 +55,12 @@ check_env() {
         exit 1
     fi
     # jq 或 Python 二选一
-    if command -v jq >/dev/null 2>&1; then
-        JQ_CMD="jq"
+    local _jq_path
+    _jq_path=$(command -v jq 2>/dev/null) || _jq_path=""
+    if [ -n "$_jq_path" ] && [ "$_jq_path" != "jq" ] && [ -x "$_jq_path" ]; then
+        :  # 外部 jq 可用
     elif command -v python >/dev/null 2>&1; then
-        JQ_CMD="python $(dirname "$0")/jq_shim.py"
+        :  # Python fallback 可用
     else
         log_error "需要 jq 或 python，请先安装其一"
         exit 1
@@ -71,10 +73,13 @@ check_env() {
     done
 }
 
-# jq 包装函数
+# jq 包装函数（避免 command -v 找到函数自身导致递归）
 jq() {
-    if command -v jq >/dev/null 2>&1; then
-        command jq "$@"
+    local _jq_path
+    _jq_path=$(command -v jq 2>/dev/null) || _jq_path=""
+    # command -v 返回 "jq" 说明只找到函数自身，没有外部二进制
+    if [ -n "$_jq_path" ] && [ "$_jq_path" != "jq" ] && [ -x "$_jq_path" ]; then
+        "$_jq_path" "$@"
     else
         python "$(dirname "$0")/jq_shim.py" "$@"
     fi
@@ -103,7 +108,7 @@ dispatch() {
     # 构建 prompt：只引用文件路径，不塞需求细节
     local prompt_text="读取仓库中 ${brief_rel} 任务简报和 contracts.md 中相关章节，按照简报要求实现功能。完成后运行测试，将结果写入 artifacts/${module_name}/result.json，提交并推送分支 ${branch}，autoCreatePR 开 PR。"
 
-    # 构建 JSON payload
+    # 构建 JSON payload（autoCreatePR 是顶层字段，不在 repos 内）
     local payload
     if [ -n "$agent_id" ]; then
         payload=$(jq -n \
@@ -113,9 +118,10 @@ dispatch() {
             --arg aid "$agent_id" \
             '{
                 prompt: { text: $pt },
-                model: { id: "composer-2" },
-                repos: [{ url: $url, startingRef: $ref, autoCreatePR: true }],
+                model: { id: "composer-2.5" },
+                repos: [{ url: $url, startingRef: $ref }],
                 workOnCurrentBranch: false,
+                autoCreatePR: true,
                 agentId: $aid
             }')
     else
@@ -125,9 +131,10 @@ dispatch() {
             --arg ref "$BASE_BRANCH" \
             '{
                 prompt: { text: $pt },
-                model: { id: "composer-2" },
-                repos: [{ url: $url, startingRef: $ref, autoCreatePR: true }],
-                workOnCurrentBranch: false
+                model: { id: "composer-2.5" },
+                repos: [{ url: $url, startingRef: $ref }],
+                workOnCurrentBranch: false,
+                autoCreatePR: true
             }')
     fi
 
@@ -135,21 +142,32 @@ dispatch() {
     log_info "  简报: $brief_path"
     log_info "  分支: $branch"
 
-    local response
-    response=$(curl -sS --request POST "${API_BASE}/agents" \
+    local response http_code
+    response=$(curl -sS --write-out '\n%{http_code}' --request POST "${API_BASE}/agents" \
         -u "${CURSOR_API_KEY}:" \
         -H 'Content-Type: application/json' \
-        -d "$payload" 2>&1) || {
-        log_error "API 调用失败"
+        -d "$payload" 2>/dev/null) || {
+        log_error "curl 调用失败"
         echo "$response"
         exit 1
     }
 
+    # 提取 HTTP 状态码（最后一行）
+    http_code=$(echo "$response" | tail -1)
+    response=$(echo "$response" | sed '$d')
+
+    # 验证响应
+    if [ "$http_code" != "201" ]; then
+        log_error "API 返回非 201 状态码: $http_code"
+        echo "$response"
+        exit 1
+    fi
+
     # 解析响应
     local agent_id_resp run_id status
-    agent_id_resp=$(echo "$response" | jq -r '.agent.id // empty' 2>/dev/null)
-    run_id=$(echo "$response" | jq -r '.run.id // empty' 2>/dev/null)
-    status=$(echo "$response" | jq -r '.run.status // .agent.status // "UNKNOWN"' 2>/dev/null)
+    agent_id_resp=$(echo "$response" | jq -r '.agent.id // empty')
+    run_id=$(echo "$response" | jq -r '.run.id // empty')
+    status=$(echo "$response" | jq -r '.run.status // .agent.status // "UNKNOWN"')
 
     if [ -z "$agent_id_resp" ]; then
         log_error "未获取到 agentId，响应:"
@@ -194,7 +212,7 @@ poll() {
     while true; do
         local response status elapsed
         response=$(curl -sS "${API_BASE}/agents/${agent_id}/runs/${run_id}" \
-            -u "${CURSOR_API_KEY}:" 2>&1) || {
+            -u "${CURSOR_API_KEY}:" 2>/dev/null) || {
             log_warn "轮询请求失败，${POLL_INTERVAL}秒后重试..."
             sleep "$POLL_INTERVAL"
             continue
@@ -206,14 +224,24 @@ poll() {
         log_info "状态: $status (已轮询 ${elapsed}s)"
 
         case "$status" in
-            COMPLETED|FAILED|CANCELLED)
+            FINISHED|ERROR|CANCELLED|EXPIRED)
                 log_info "终态: $status"
+                # 提取 git 信息（分支名和 PR URL）
+                local pr_url git_branch
+                pr_url=$(echo "$response" | jq -r '.git.branches[0].prUrl // empty' 2>/dev/null)
+                git_branch=$(echo "$response" | jq -r '.git.branches[0].branch // empty' 2>/dev/null)
+                if [ -n "$pr_url" ]; then
+                    log_info "PR:       $pr_url"
+                fi
+                if [ -n "$git_branch" ]; then
+                    log_info "分支:     $git_branch"
+                fi
                 echo "$response" | jq .
                 return 0
                 ;;
-            CREATING|RUNNING|QUEUED)
+            CREATING|RUNNING)
                 if [ "$elapsed" -ge "$RUN_TIMEOUT" ]; then
-                    log_error "超时（${RUN_TIMEOUT}s），标记为 FAILED"
+                    log_error "超时（${RUN_TIMEOUT}s），标记为 ERROR"
                     jq -n --arg status "TIMEOUT" --arg agentId "$agent_id" --arg runId "$run_id" \
                         '{status: $status, agentId: $agentId, runId: $runId, message: "run timed out"}'
                     return 1
@@ -358,15 +386,15 @@ dispatch_fix() {
     response=$(curl -sS --request POST "${API_BASE}/agents/${agent_id}/runs" \
         -u "${CURSOR_API_KEY}:" \
         -H 'Content-Type: application/json' \
-        -d "$(jq -n --arg pt "$prompt_text" '{prompt: {text: $pt}}')" 2>&1) || {
+        -d "$(jq -n --arg pt "$prompt_text" '{prompt: {text: $pt}}')" 2>/dev/null) || {
         log_error "API 调用失败"
         echo "$response"
         exit 1
     }
 
     local run_id status
-    run_id=$(echo "$response" | jq -r '.id // empty' 2>/dev/null)
-    status=$(echo "$response" | jq -r '.status // "UNKNOWN"' 2>/dev/null)
+    run_id=$(echo "$response" | jq -r '.id // empty')
+    status=$(echo "$response" | jq -r '.status // "UNKNOWN"')
 
     log_info "修复任务已派发"
     log_info "  runId: $run_id"
