@@ -1,6 +1,7 @@
 package com.lingxi.knowledge.app;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lingxi.id.api.IdGenerator;
 import com.lingxi.knowledge.domain.KcPrompt;
 import com.lingxi.knowledge.domain.KcScript;
@@ -22,8 +23,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,11 +53,19 @@ public class KnowledgeController {
 
     @GetMapping("/templates")
     @RequirePermission("kc:knowledge:manage")
-    public Result<List<KcTemplate>> templates() {
+    public Result<Map<String, Object>> templates(
+            @RequestParam(defaultValue = "1") long pageNo,
+            @RequestParam(defaultValue = "20") long pageSize,
+            @RequestParam(required = false) String keyword) {
         Long tenantId = resolveTenantId();
-        return Result.ok(templateMapper.selectList(new LambdaQueryWrapper<KcTemplate>()
+        LambdaQueryWrapper<KcTemplate> qw = new LambdaQueryWrapper<KcTemplate>()
                 .eq(KcTemplate::getTenantId, tenantId)
-                .orderByDesc(KcTemplate::getId)));
+                .orderByDesc(KcTemplate::getId);
+        if (StringUtils.hasText(keyword)) {
+            qw.like(KcTemplate::getName, keyword.trim());
+        }
+        Page<KcTemplate> page = templateMapper.selectPage(new Page<>(pageNo, pageSize), qw);
+        return Result.ok(toPageResult(page));
     }
 
     @PostMapping("/templates")
@@ -106,11 +117,19 @@ public class KnowledgeController {
 
     @GetMapping("/scripts")
     @RequirePermission("kc:knowledge:manage")
-    public Result<List<KcScript>> scripts() {
+    public Result<Map<String, Object>> scripts(
+            @RequestParam(defaultValue = "1") long pageNo,
+            @RequestParam(defaultValue = "20") long pageSize,
+            @RequestParam(required = false) String keyword) {
         Long tenantId = resolveTenantId();
-        return Result.ok(scriptMapper.selectList(new LambdaQueryWrapper<KcScript>()
+        LambdaQueryWrapper<KcScript> qw = new LambdaQueryWrapper<KcScript>()
                 .eq(KcScript::getTenantId, tenantId)
-                .orderByDesc(KcScript::getId)));
+                .orderByDesc(KcScript::getId);
+        if (StringUtils.hasText(keyword)) {
+            qw.like(KcScript::getScene, keyword.trim());
+        }
+        Page<KcScript> page = scriptMapper.selectPage(new Page<>(pageNo, pageSize), qw);
+        return Result.ok(toPageResult(page));
     }
 
     @PostMapping("/scripts")
@@ -159,11 +178,19 @@ public class KnowledgeController {
 
     @GetMapping("/prompts")
     @RequirePermission("kc:knowledge:manage")
-    public Result<List<KcPrompt>> prompts() {
+    public Result<Map<String, Object>> prompts(
+            @RequestParam(defaultValue = "1") long pageNo,
+            @RequestParam(defaultValue = "20") long pageSize,
+            @RequestParam(required = false) String keyword) {
         Long tenantId = resolveTenantId();
-        return Result.ok(promptMapper.selectList(new LambdaQueryWrapper<KcPrompt>()
+        LambdaQueryWrapper<KcPrompt> qw = new LambdaQueryWrapper<KcPrompt>()
                 .eq(KcPrompt::getTenantId, tenantId)
-                .orderByAsc(KcPrompt::getPromptCode)));
+                .orderByAsc(KcPrompt::getPromptCode);
+        if (StringUtils.hasText(keyword)) {
+            qw.like(KcPrompt::getName, keyword.trim());
+        }
+        Page<KcPrompt> page = promptMapper.selectPage(new Page<>(pageNo, pageSize), qw);
+        return Result.ok(toPageResult(page));
     }
 
     @PostMapping("/prompts")
@@ -247,5 +274,14 @@ public class KnowledgeController {
             tenantId = UserContext.require().getTenantId();
         }
         return tenantId;
+    }
+
+    private <T> Map<String, Object> toPageResult(Page<T> page) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("list", page.getRecords());
+        data.put("total", page.getTotal());
+        data.put("pageNo", page.getCurrent());
+        data.put("pageSize", page.getSize());
+        return data;
     }
 }
