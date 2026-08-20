@@ -1,0 +1,18 @@
+{
+  "taskId": "M2-backend",
+  "status": "COMPLETED",
+  "summary": "补齐PATCH端点+员工CRUD+keyword搜索+8个单元测试",
+  "testCount": 8,
+  "testPassed": 8,
+  "testFailed": 0,
+  "files": [
+    "lingxi-server/src/main/resources/db/migration/V202608201400__mdata_employee.sql",
+    "lingxi-mdata/src/main/java/com/lingxi/mdata/domain/DcEmployee.java",
+    "lingxi-mdata/src/main/java/com/lingxi/mdata/infra/mapper/DcEmployeeMapper.java",
+    "lingxi-mdata/src/main/java/com/lingxi/mdata/app/MdataController.java",
+    "lingxi-mdata/pom.xml",
+    "lingxi-mdata/src/test/java/com/lingxi/mdata/MdataTestApplication.java",
+    "lingxi-mdata/src/test/java/com/lingxi/mdata/app/MdataControllerTest.java"
+  ],
+  "notes": "X-Idempotency-Key 已添加 TODO 注释，完整幂等逻辑待后续实现；商品/渠道 biz_code 前缀保持现有 PRD-/CH- 不变"
+}
