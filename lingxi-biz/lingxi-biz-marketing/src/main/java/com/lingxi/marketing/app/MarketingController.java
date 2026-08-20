@@ -18,6 +18,7 @@ import com.lingxi.starter.core.security.UserContext;
 import com.lingxi.starter.core.tenant.TenantContext;
 import com.lingxi.starter.security.annotation.RequirePermission;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,10 +30,14 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/marketing")
 public class MarketingController {
+
+    private static final Set<String> VALID_PLATFORMS = Set.of(
+            "FACEBOOK", "INSTAGRAM", "LINKEDIN", "TIKTOK");
 
     private final MkgSocialAccountMapper socialAccountMapper;
     private final MkgContentAssetMapper contentAssetMapper;
@@ -66,6 +71,42 @@ public class MarketingController {
         return Result.ok(socialAccountMapper.selectList(new LambdaQueryWrapper<MkgSocialAccount>()
                 .eq(MkgSocialAccount::getTenantId, tenantId)
                 .orderByAsc(MkgSocialAccount::getPlatform)));
+    }
+
+    @PostMapping("/social-accounts")
+    @RequirePermission("mkg:social:manage")
+    public Result<MkgSocialAccount> bindSocialAccount(@RequestBody Map<String, Object> body) {
+        Long tenantId = resolveTenantId();
+        String platform = text(body.get("platform"));
+        if (!StringUtils.hasText(platform)) {
+            return Result.fail("BAD_REQUEST", "platform is required");
+        }
+        String normalizedPlatform = platform.toUpperCase();
+        if (!VALID_PLATFORMS.contains(normalizedPlatform)) {
+            return Result.fail("BAD_REQUEST", "invalid platform: " + platform);
+        }
+        String accountName = text(body.get("accountName"));
+        if (!StringUtils.hasText(accountName)) {
+            return Result.fail("BAD_REQUEST", "accountName is required");
+        }
+
+        MkgSocialAccount account = new MkgSocialAccount();
+        account.setPlatform(normalizedPlatform);
+        account.setAccountName(accountName);
+        account.setExternalRef(text(body.get("externalRef")));
+        account.setAuthStatus("DISCONNECTED");
+        prepareNewSocialAccount(account, tenantId);
+        socialAccountMapper.insert(account);
+        return Result.ok(account);
+    }
+
+    @DeleteMapping("/social-accounts/{id}")
+    @RequirePermission("mkg:social:manage")
+    public Result<Void> unbindSocialAccount(@PathVariable Long id) {
+        Long tenantId = resolveTenantId();
+        requireSocialAccount(tenantId, id);
+        socialAccountMapper.deleteById(id);
+        return Result.ok(null);
     }
 
     @GetMapping("/contents")
@@ -104,6 +145,16 @@ public class MarketingController {
     @PostMapping("/contents/generate")
     @RequirePermission("mkg:content:generate")
     public Result<Map<String, Object>> generate(@RequestBody Map<String, Object> body) {
+        return generateContent(body);
+    }
+
+    @PostMapping("/ai-content")
+    @RequirePermission("mkg:content:generate")
+    public Result<Map<String, Object>> aiContent(@RequestBody Map<String, Object> body) {
+        return generateContent(body);
+    }
+
+    private Result<Map<String, Object>> generateContent(Map<String, Object> body) {
         Long tenantId = resolveTenantId();
         UserContext.UserPrincipal principal = UserContext.require();
         String title = text(body.get("title"));
@@ -142,6 +193,8 @@ public class MarketingController {
         asset.setLeads(0);
         prepareNewAsset(asset, tenantId);
         contentAssetMapper.insert(asset);
+
+        // TODO: 待事件总线基础设施就绪后发布 lx.mkg.content.generated 事件
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("asset", asset);
@@ -238,6 +291,24 @@ public class MarketingController {
             throw new BizException(ErrorCode.NOT_FOUND, "content not found");
         }
         return asset;
+    }
+
+    private MkgSocialAccount requireSocialAccount(Long tenantId, Long id) {
+        MkgSocialAccount account = socialAccountMapper.selectOne(new LambdaQueryWrapper<MkgSocialAccount>()
+                .eq(MkgSocialAccount::getId, id)
+                .eq(MkgSocialAccount::getTenantId, tenantId));
+        if (account == null) {
+            throw new BizException(ErrorCode.NOT_FOUND, "social account not found");
+        }
+        return account;
+    }
+
+    private void prepareNewSocialAccount(MkgSocialAccount account, Long tenantId) {
+        account.setId(idGenerator.nextId());
+        account.setTenantId(tenantId);
+        if (account.getVersion() == null) {
+            account.setVersion(0);
+        }
     }
 
     private void prepareNewAsset(MkgContentAsset body, Long tenantId) {
