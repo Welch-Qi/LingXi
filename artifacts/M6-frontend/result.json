@@ -3,7 +3,7 @@
   "agent": "bc-fbab8a52-a776-4e1e-a7fd-6cecf9a95eb8",
   "runId": "run-m6-frontend-20260821",
   "status": "COMPLETED",
-  "prUrl": "",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/16",
   "branch": "cursor/feat-m6-frontend",
   "summary": "营销域页面接入真实 API（social-accounts 绑定/解绑 + contents/campaigns 全链路），新增社媒账号管理，去除 @ts-nocheck，typecheck 通过",
   "changedFiles": [
