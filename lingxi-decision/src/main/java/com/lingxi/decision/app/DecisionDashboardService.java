@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,6 +55,10 @@ public class DecisionDashboardService {
             "funnel_click", "#1d4ed8",
             "funnel_lead", "#2563eb",
             "funnel_order", "#3b82f6");
+    private static final Set<String> ASK_METRIC_WHITELIST = Set.of(
+            "revenue", "leads", "win_rate", "customers",
+            "products", "hot", "impression", "click", "lead", "order", "deal",
+            "funnel_impression", "funnel_click", "funnel_lead", "funnel_order");
 
     private final DmKpiSnapshotMapper kpiSnapshotMapper;
     private final ObjectMapper objectMapper;
@@ -81,6 +86,37 @@ public class DecisionDashboardService {
         data.put("funnel", buildFunnel(all, monthKey));
         data.put("trend", buildTrend(all));
         data.put("updatedAtHint", "数据更新于刚才");
+        return data;
+    }
+
+    public Map<String, Object> askQuestion(Long tenantId, String metricCode) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        if (!StringUtils.hasText(metricCode)) {
+            data.put("answer", "请提供有效的指标代码。");
+            return data;
+        }
+        String normalized = metricCode.toLowerCase(Locale.ROOT);
+        if (!ASK_METRIC_WHITELIST.contains(normalized)) {
+            data.put("metricCode", normalized);
+            data.put("answer", "未知指标「" + normalized + "」，请从白名单中选择。");
+            return data;
+        }
+        List<DmKpiSnapshot> rows = kpiSnapshotMapper.selectList(new LambdaQueryWrapper<DmKpiSnapshot>()
+                .eq(DmKpiSnapshot::getTenantId, tenantId)
+                .eq(DmKpiSnapshot::getMetricCode, normalized)
+                .orderByDesc(DmKpiSnapshot::getPeriodKey));
+        DmKpiSnapshot latest = rows.isEmpty() ? null : rows.get(0);
+        data.put("metricCode", normalized);
+        data.put("rows", rows);
+        if (latest != null) {
+            data.put("value", latest.getMetricValue());
+            data.put("unit", latest.getUnit());
+            data.put("periodKey", latest.getPeriodKey());
+            data.put("metricName", latest.getMetricName());
+            data.put("answer", buildAskAnswer(latest));
+        } else {
+            data.put("answer", "暂无指标「" + normalized + "」的快照数据。");
+        }
         return data;
     }
 
@@ -352,5 +388,26 @@ public class DecisionDashboardService {
 
     private static double round1(double v) {
         return Math.round(v * 10.0) / 10.0;
+    }
+
+    private static String buildAskAnswer(DmKpiSnapshot latest) {
+        BigDecimal value = latest.getMetricValue();
+        String unit = latest.getUnit() == null ? "" : latest.getUnit();
+        String name = latest.getMetricName() == null ? latest.getMetricCode() : latest.getMetricName();
+        String period = latest.getPeriodKey() == null ? "" : latest.getPeriodKey();
+        return String.format(Locale.CHINA,
+                "【%s】在周期 %s 的值为 %s%s。",
+                name, period, value == null ? "—" : value.stripTrailingZeros().toPlainString(),
+                formatAskUnit(unit));
+    }
+
+    private static String formatAskUnit(String unit) {
+        if (!StringUtils.hasText(unit) || "COUNT".equalsIgnoreCase(unit)) {
+            return "";
+        }
+        if ("RATIO".equalsIgnoreCase(unit)) {
+            return "（比率）";
+        }
+        return " " + unit;
     }
 }

@@ -78,9 +78,9 @@ public class DecisionController {
         return Result.ok(kpiSnapshotMapper.selectList(qw));
     }
 
-    @PostMapping("/qa")
+    @PostMapping("/ask")
     @RequirePermission("dm:qa:ask")
-    public Result<Map<String, Object>> qa(@RequestBody Map<String, Object> body) {
+    public Result<Map<String, Object>> askQuestion(@RequestBody Map<String, Object> body) {
         Long tenantId = resolveTenantId();
         String dsl = body.get("dsl") == null ? "" : body.get("dsl").toString().trim();
         String question = body.get("question") == null ? dsl : body.get("question").toString().trim();
