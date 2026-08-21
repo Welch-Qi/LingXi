@@ -15,18 +15,19 @@
 | M2 | M2-backend | 数据中心主数据（客户/商品/渠道/员工） | M0, M1 | DONE | B | bc-8ce549ac | run-03be0d8e | #5 (merged) | 0 | 176s，8测试全通过，新增PATCH+员工CRUD+keyword搜索 |
 | M3 | M3-backend | 配置中心（行业定义 + 用户/角色/权限） | M0, M1 | DONE | B | bc-4ce778df | run-33647b54 | #6 (merged) | 0 | 179s，10测试全通过，新增用户/角色/权限CRUD+4张新表 |
 | M4 | M4-backend | 市场域后端（搜索指数/热词/机会扫描） | M0, M2 | DONE | B | bc-081e6252 | run-03ae2b10 | #9 (merged) | 0 | 227s，8测试全通过，新增search-trends/hot-keywords/rising-keywords/region-heat端点 |
-| M4 | M4-frontend | 市场域前端页面 | M4-backend | PENDING | - | - | - | - | - | 依赖 M4 后端 API |
+| M4 | M4-frontend | 市场域前端页面 | M4-backend | DONE | B | bc-3be30548-37bc-4751-972f-bbed85cb726b | run-bcb5288e-356c-4768-b46e-85393e0ae344 | #20 (merged, squash) | 0 | 接入真实 /market API，本地 typecheck 通过，路由 /market |
 | M5 | M5-backend | 销售域后端（线索/客户/商机） | M0, M2 | DONE | B | bc-3f886876 | run-f7d23b5d | #8 (merged) | 0 | 192s，11测试全通过，新增线索详情/客户创建/商机创建+advanceTo领域方法 |
-| M5 | M5-frontend | 销售域前端页面 | M5-backend | PENDING | - | - | - | - | - | 依赖 M5 后端 API |
+| M5 | M5-frontend | 销售域前端页面 | M5-backend | DONE | B | bc-42167dab-01dd-4077-b9e3-cd9f009df244 | run-ed85d09e-e22e-43f4-9970-cda79d8f9220 | #17 (merged, squash) | 0 | 接入真实 /sales API，本地 typecheck 通过，路由 /sales |
 | M6 | M6-backend | 营销域后端（社媒账号/AI 内容） | M0, M2 | DONE | B | bc-5eddff8d | run-605b8928 | #7 (merged) | 0 | 161s，8测试全通过，新增社媒绑定/解绑+ai-content契约端点 |
-| M6 | M6-frontend | 营销域前端页面 | M6-backend | PENDING | - | - | - | - | - | 依赖 M6 后端 API |
+| M6 | M6-frontend | 营销域前端页面 | M6-backend | DONE | B | bc-fbab8a52-a776-4e1e-a7fd-6cecf9a95eb8 | run-ed57212a-8872-44f5-8407-7cb2f8e4e504 | #16 (merged, squash) | 0 | 接入真实 /marketing API，本地 typecheck 通过，路由 /marketing |
 | M7 | M7-backend | 知识中心（模板/话术/提示词） | M0, M1 | DONE | B | bc-58dea20a | run-31a9efe4 | #4 (merged) | 0 | 146s，8测试全通过，keyword搜索+分页格式 |
-| M7 | M7-frontend | 知识中心前端页面 | M7-backend | PENDING | - | - | - | - | - | 依赖 M7 后端 API |
+| M7 | M7-frontend | 知识中心前端页面 | M7-backend | DONE | B | bc-1b9158af-380a-4f5a-8f60-ce1e0a1ed872 | run-69e0e887-dc54-4a02-b64a-d70e3ffb4f2d | #15 (merged, squash) | 0 | 接入真实 /knowledge API，本地 typecheck 通过，路由 /knowledge |
 | M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | DONE | B | bc-9158d07b | run-c3b19b49 | #11 (merged) | 0 | 131s，8测试全通过，/qa→/ask契约对齐+DecisionController/ServiceTest |
-| M8 | M8-frontend | 决策中心前端页面 | M8-backend | PENDING | - | - | - | - | - | 依赖 M8 后端 API |
+| M8 | M8-frontend | 决策中心前端页面 | M8-backend | DONE | B | bc-b2ba8350-6a61-4dd4-b043-9c4d83cb7a61 | run-63594bda-4084-4f47-90b3-03b1b507aa60 | #21 (merged, squash) | 0 | 接入真实 /decision API（修复 /qa→/ask），本地 typecheck 通过，路由 /decision |
 | M9 | M9-backend | AI Agent Runtime（五大智能体） | M4, M5, M6, M7 | DONE | B | bc-8ad1d87e | run-08045b72 | #10 (merged) | 0 | 129s，9测试全通过，新增POST/agent/tasks+GET/agent/tasks/{id}+POST/agent/chat三契约端点 |
+| M9 | M9-frontend | 智能体中心前端页面 | M9-backend | DONE | B | bc-ae1626dc-4057-451c-bab6-ae58e6b841e4 | run-80e556b2-0cc1-4ef7-9fe9-67db60c5fe4d | #18 (merged, squash) | 0 | 接入真实 /agents API（非 contracts.md 的 /agent/tasks），typecheck 通过，路由 /agent |
 | M10 | M10-backend | 工作台后端（首页/任务中心/通知） | M0, M1 | DONE | B | bc-183795d3 | run-0eee90c8 | #12 (merged) | 0 | 113s，7测试全通过，/home→/dashboard+/ack→/acknowledge+新增PATCH /tasks/{id} |
-| M10 | M10-frontend | 统一工作台 + 全量前端联调 | M4~M9 全部前端 | PENDING | - | - | - | - | - | 通道C：复杂模块人工兜底 |
+| M10 | M10-frontend | 统一工作台 + 全量前端联调 | M4~M9 全部前端 | DONE | B | bc-2a952cca-a6c5-4b74-bc22-5115c16905b1 | run-cf4f9f26-ed9f-41f1-9819-4d0f7cc6be62 | #19 (merged, squash) | 0 | 接入真实 /workbench API，本地 typecheck 通过，路由 /workbench；全量前端联调完成 |
 
 ---
 
@@ -97,3 +98,5 @@ M0 平台底座
 | 2026-08-21 | M4/M5/M6 三路并行完成并合并：M4 PR#9(227s,8测试)+M5 PR#8(192s,11测试)+M6 PR#7(161s,8测试)，共27测试全通过，+1297行。M8/M9 解锁为 READY。至此 M0~M7 后端全部 DONE |
 | 2026-08-21 | M8/M9/M10 三路并行派发到 Cursor Cloud：M8(bc9158d07b)+M9(bc8ad1d87e)+M10(bc183795d3)，全部 RUNNING |
 | 2026-08-21 | M8/M9/M10 三路并行完成并合并：M8 PR#11(131s,8测试)+M9 PR#10(129s,9测试)+M10 PR#12(113s,7测试)，共24测试全通过，+934行。**全部后端模块 M0~M10 DONE，后端开发完成** |
+| 2026-08-21 | M4~M10-frontend 七路并行派发到 Cursor Cloud：M4(bc-3be30548)+M5(bc-42167dab)+M6(bc-fbab8a52)+M7(bc-1b9158af)+M8(bc-b2ba8350)+M9(bc-ae1626dc)+M10(bc-2a952cca)，全部 RUNNING；补登缺失的 M9-frontend 看板行，进入轮询+本地质量门禁阶段 |
+| 2026-08-21 | 前端七路全部 FINISHED，本地 typecheck 全过(rc=0)。合并进 preview/frontend-all 零冲突，7 路由(/market /sales /marketing /knowledge /decision /agent /workbench)均 HTTP 200，dev server 跑在 localhost:3000 可预览。**全部 7 个前端 PR 经 API squash 合并进 origin/main**：M4=#20、M5=#17、M6=#16、M7=#15、M8=#21、M9=#18、M10=#19（#13/#14 因 draft 无法 API 合并，已关闭并重建非 draft PR #20/#21）。**前端 M4~M10 收尾完成** |
