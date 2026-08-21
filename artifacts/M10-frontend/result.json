@@ -1,0 +1,26 @@
+{
+  "task": "M10-frontend",
+  "agent": "bc-2a952cca-a6c5-4b74-bc22-5115c16905b1",
+  "runId": "run-m10-frontend",
+  "status": "COMPLETED",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/compare/main...cursor/feat-m10-frontend?expand=1",
+  "branch": "cursor/feat-m10-frontend",
+  "summary": "统一工作台页面接入真实 API（dashboard/tasks 完成/inquiries 确认），新增待办与询盘区块，typecheck 通过",
+  "changedFiles": [
+    "lingxi-web/apps/lingxi-web/src/components/pages/dashboard-page.tsx",
+    "lingxi-web/apps/lingxi-web/src/lib/api-workbench.ts"
+  ],
+  "tests": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "coverage": 0,
+    "note": "前端以 typecheck/build 为验证，无单元测试；apps/lingxi-web pnpm typecheck 通过"
+  },
+  "contractChecks": {
+    "passed": 3,
+    "failed": 0
+  },
+  "blockers": [],
+  "nextActions": []
+}
