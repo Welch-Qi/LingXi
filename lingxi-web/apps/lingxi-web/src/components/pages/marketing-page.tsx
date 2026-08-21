@@ -1,20 +1,23 @@
 "use client"
-// @ts-nocheck — design dump; channels map callbacks typed loosely
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-import { ArrowDownUp, ArrowRight, CheckCircle2, Clock, Eye, FileText, Film, Globe, ImageIcon, Megaphone, MousePointerClick, PlusCircle, Radio, Search, Send, Sparkles, Tag, Upload, User, Video, X } from "lucide-react"
+import { ArrowDownUp, ArrowRight, CheckCircle2, Clock, FileText, Film, Globe, ImageIcon, Link2, Megaphone, PlusCircle, Radio, Search, Send, Sparkles, Tag, Trash2, Upload, User, Video, X } from "lucide-react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { apiGet, apiPost } from "@/lib/api"
+import { apiDelete, apiGet, apiPost } from "@/lib/api"
+import { mapCampaign, mapSocialAccount, SOCIAL_PLATFORMS, type CampaignCard, type SocialAccount, type SocialPlatform } from "@/lib/api-marketing"
+import { pickRows } from "@/lib/format"
 import { channels, contentAssets as initialAssets, distribution } from "@/lib/mocks/marketing"
 import type { ContentAsset, TaskStatus } from "@/types"
 import { LxKpi } from "@/components/lingxi-ui/lx-kpi"
@@ -24,8 +27,6 @@ const performance = [{ day: "周一", reach: 18, leads: 32 }, { day: "周二", r
 const fallbackCampaigns = [{ name: "欧洲阳台储能增长计划", channels: "TikTok · Instagram · YouTube", budget: "€48,000", spent: 68, roas: "4.8x", status: "投放中" }, { name: "Vanlife 夏季场景营销", channels: "Meta · Google", budget: "€32,000", spent: 42, roas: "3.6x", status: "投放中" }, { name: "B2B 经销商招募", channels: "LinkedIn · Email", budget: "€18,000", spent: 91, roas: "5.2x", status: "待复盘" }]
 const stages = [{ id: "production", label: "内容生产", icon: FileText }, { id: "distribution", label: "内容分发", icon: Send }, { id: "campaign", label: "投放管理", icon: Megaphone }]
 const fmt = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)}w` : n.toLocaleString()
-
-type CampaignCard = { name: string; channels: string; budget: string; spent: number; roas: string; status: string }
 
 const STATUS_FROM_API: Record<string, TaskStatus> = {
   DRAFT: "创意中",
@@ -166,11 +167,18 @@ export function MarketingPage() {
   const [assets, setAssets] = useState<ContentAsset[]>(initialAssets)
   const [campaigns, setCampaigns] = useState<CampaignCard[]>(fallbackCampaigns)
   const [lastGeneratedId, setLastGeneratedId] = useState<string>("")
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>([])
+  const [socialLoading, setSocialLoading] = useState(false)
+  const [socialError, setSocialError] = useState<string | null>(null)
+  const [bindPlatform, setBindPlatform] = useState<SocialPlatform>("TIKTOK")
+  const [bindAccountName, setBindAccountName] = useState("")
+  const [binding, setBinding] = useState(false)
 
   const reloadAssets = useCallback(async () => {
     try {
-      const rows = await apiGet<Record<string, unknown>[]>("/marketing/contents")
-      if (Array.isArray(rows) && rows.length) {
+      const data = await apiGet<unknown>("/marketing/contents")
+      const rows = pickRows(data)
+      if (rows.length) {
         setAssets(rows.map(mapAsset))
       }
     } catch {
@@ -180,26 +188,35 @@ export function MarketingPage() {
 
   const reloadCampaigns = useCallback(async () => {
     try {
-      const rows = await apiGet<Record<string, unknown>[]>("/marketing/campaigns")
-      if (Array.isArray(rows) && rows.length) {
-        setCampaigns(rows.map((r) => ({
-          name: String(r.name || ""),
-          channels: String(r.channels || ""),
-          budget: String(r.budget || ""),
-          spent: Number(r.spentPct ?? 0),
-          roas: String(r.roas || ""),
-          status: String(r.status || "投放中"),
-        })))
+      const data = await apiGet<unknown>("/marketing/campaigns")
+      const rows = pickRows(data)
+      if (rows.length) {
+        setCampaigns(rows.map(mapCampaign))
       }
     } catch {
       /* keep mock */
     }
   }, [])
 
+  const reloadSocialAccounts = useCallback(async () => {
+    setSocialLoading(true)
+    setSocialError(null)
+    try {
+      const data = await apiGet<unknown>("/marketing/social-accounts")
+      setSocialAccounts(pickRows(data).map(mapSocialAccount))
+    } catch (e: unknown) {
+      setSocialError(e instanceof Error ? e.message : "社媒账号加载失败")
+      setSocialAccounts([])
+    } finally {
+      setSocialLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     void reloadAssets()
     void reloadCampaigns()
-  }, [reloadAssets, reloadCampaigns])
+    void reloadSocialAccounts()
+  }, [reloadAssets, reloadCampaigns, reloadSocialAccounts])
 
   /* new-content wizard */
   const [showCreate, setShowCreate] = useState(false)
@@ -333,6 +350,39 @@ export function MarketingPage() {
     }
     setShowCreate(false)
     setNewTitle(""); setSelMaterials([]); setGenerated(false); setGeneratedText(""); setCustomScript(""); setLastGeneratedId("")
+  }
+
+  /* bind social account */
+  async function handleBindAccount() {
+    if (!bindAccountName.trim()) {
+      toast.error("请填写账号名称")
+      return
+    }
+    setBinding(true)
+    try {
+      await apiPost<Record<string, unknown>>("/marketing/social-accounts", {
+        platform: bindPlatform,
+        accountName: bindAccountName.trim(),
+      })
+      setBindAccountName("")
+      await reloadSocialAccounts()
+      toast.success("社媒账号已绑定")
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "绑定失败")
+    } finally {
+      setBinding(false)
+    }
+  }
+
+  /* unbind social account */
+  async function handleUnbindAccount(account: SocialAccount) {
+    try {
+      await apiDelete(`/marketing/social-accounts/${account.id}`)
+      setSocialAccounts((prev) => prev.filter((a) => a.id !== account.id))
+      toast.success(`已解绑 ${account.platformLabel} · ${account.accountName}`)
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "解绑失败")
+    }
   }
 
   /* publish */
@@ -575,6 +625,67 @@ export function MarketingPage() {
         <LxKpi key={x.l} label={x.l} value={x.v} sub={x.s} color={x.c} />
       ))}
     </section>
+      <Card className="shadow-none">
+        <CardHeader className="flex-row items-center justify-between py-3">
+          <div>
+            <CardTitle className="text-sm flex items-center gap-1.5"><Link2 className="size-3.5 text-primary" />社媒账号管理</CardTitle>
+            <CardDescription className="text-[11px]">绑定 Facebook / Instagram / LinkedIn / TikTok 账号，用于内容分发与投放</CardDescription>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => void reloadSocialAccounts()} disabled={socialLoading}>
+            {socialLoading ? "加载中…" : "刷新"}
+          </Button>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4 pb-4">
+          {socialError && (
+            <div className="rounded-lg border border-dashed bg-muted/40 p-3 text-center text-[11px] text-muted-foreground">
+              {socialError} · 请检查后端服务或稍后重试
+            </div>
+          )}
+          {!socialError && socialAccounts.length === 0 && !socialLoading && (
+            <div className="rounded-lg border border-dashed bg-muted/40 p-4 text-center text-[11px] text-muted-foreground">
+              暂无已绑定社媒账号，请在下方添加
+            </div>
+          )}
+          {socialAccounts.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {socialAccounts.map((account) => (
+                <div key={account.id} className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium">{account.platformLabel}</div>
+                    <div className="text-[10px] text-muted-foreground truncate max-w-[160px]">{account.accountName}</div>
+                  </div>
+                  <Badge variant={account.authStatus === "CONNECTED" ? "default" : "secondary"} className="text-[10px]">
+                    {account.authStatusLabel}
+                  </Badge>
+                  <Button size="sm" variant="ghost" className="size-7 p-0 text-muted-foreground hover:text-destructive" onClick={() => void handleUnbindAccount(account)}>
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-muted/20 p-3">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[11px] text-muted-foreground">平台</Label>
+              <Select value={bindPlatform} onValueChange={(v) => v && setBindPlatform(v as SocialPlatform)}>
+                <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {SOCIAL_PLATFORMS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-1 flex-col gap-1.5 min-w-[180px]">
+              <Label className="text-[11px] text-muted-foreground">账号名称</Label>
+              <Input className="h-8 text-xs" placeholder="例如：@novatech_de 或品牌主页名" value={bindAccountName} onChange={(e) => setBindAccountName(e.target.value)} />
+            </div>
+            <Button size="sm" onClick={() => void handleBindAccount()} disabled={binding}>
+              {binding ? "绑定中…" : <><PlusCircle />绑定账号</>}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       <Card className="shadow-none"><CardHeader className="flex-row items-center justify-between py-3"><div><CardTitle className="text-sm">内容生产队列</CardTitle><CardDescription className="text-[11px]">策划、创作、审核与版本状态</CardDescription></div><div className="flex gap-2"><div className="relative"><Search className="absolute left-2.5 top-2 size-3.5 text-muted-foreground" /><Input className="h-8 w-48 pl-8 text-xs" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索内容" /></div><Button size="sm" variant="outline" onClick={() => setSortDesc(!sortDesc)}><ArrowDownUp />浏览量</Button><Button size="sm" onClick={() => setShowCreate(true)}><PlusCircle />新建内容</Button></div></CardHeader>
         <CardContent className="p-0"><Table><TableHeader><TableRow><TableHead>封面</TableHead><TableHead>内容主题</TableHead><TableHead>类型</TableHead><TableHead>语言</TableHead><TableHead>目标渠道</TableHead><TableHead>状态</TableHead><TableHead>更新时间</TableHead><TableHead className="text-right">操作</TableHead></TableRow></TableHeader><TableBody>{rows.map((item) => {
           const sb = statusBadge[item.status] ?? { label: item.status, variant: "outline" as const }
@@ -595,7 +706,7 @@ export function MarketingPage() {
       <Button onClick={() => openPublish()}><Radio data-icon="inline-start" />内容发布</Button>
     </div>
       <div className="grid grid-cols-12 gap-4"><Card className="col-span-8 shadow-none"><CardHeader><CardTitle className="text-sm">渠道分发效果</CardTitle><CardDescription className="text-[11px]">近 7 日触达与线索贡献</CardDescription></CardHeader><CardContent><ChartContainer config={{ reach: { label: "触达（万）", color: "#2563eb" }, leads: { label: "线索", color: "#10b981" } }} className="h-56 w-full"><BarChart data={performance}><CartesianGrid vertical={false} /><XAxis dataKey="day" axisLine={false} tickLine={false} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="reach" fill="var(--color-reach)" radius={[3, 3, 0, 0]} /><Bar dataKey="leads" fill="var(--color-leads)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></CardContent></Card><Card className="col-span-4 shadow-none"><CardHeader><CardTitle className="text-sm">分发任务</CardTitle><CardDescription className="text-[11px]">今日渠道排期与完成情况</CardDescription></CardHeader><CardContent className="flex flex-col gap-4">{[{ c: "TikTok", n: 24, p: 82 }, { c: "Instagram", n: 18, p: 64 }, { c: "YouTube", n: 8, p: 50 }, { c: "LinkedIn", n: 12, p: 91 }].map((x) => <div key={x.c}><div className="mb-1.5 flex justify-between text-[11px]"><span>{x.c}</span><span>{x.n} 项 · {x.p}%</span></div><Progress value={x.p} /></div>)}</CardContent></Card></div>
-      <Card className="shadow-none"><CardHeader className="py-3"><CardTitle className="text-sm">内容渠道投放矩阵</CardTitle><CardDescription className="text-[11px]">各内容在各渠道是否投放，以及曝光量与点击量</CardDescription></CardHeader><CardContent className="p-0"><Table><TableHeader><TableRow><TableHead>内容主题</TableHead><TableHead>类型</TableHead>{channels.map((c) => <TableHead key={c} className="text-center">{c}</TableHead>)}<TableHead className="text-right">总曝光量</TableHead><TableHead className="text-right">总点击量</TableHead></TableRow></TableHeader><TableBody>{distribution.map((d) => { const imp = d.channels.reduce((s, c) => s + c.impressions, 0); const clk = d.channels.reduce((s, c) => s + c.clicks, 0); return <TableRow key={d.id}><TableCell><div className="font-medium">{d.title}</div><div className="text-[10px] text-muted-foreground">{d.id}</div></TableCell><TableCell>{d.type}</TableCell>{d.channels.map((c) => <TableCell key={c.channel} className="text-center">{c.delivered ? <CheckCircle2 className="mx-auto size-4 text-primary" /> : <X className="mx-auto size-4 text-muted-foreground/40" />}</TableCell>)}<TableCell className="text-right font-medium">{fmt(imp)}</TableCell><TableCell className="text-right font-medium text-primary">{fmt(clk)}</TableCell></TableRow> })}</TableBody></Table></CardContent></Card></>}
+      <Card className="shadow-none"><CardHeader className="py-3"><CardTitle className="text-sm">内容渠道投放矩阵</CardTitle><CardDescription className="text-[11px]">各内容在各渠道是否投放，以及曝光量与点击量（演示数据，暂无专门端点）</CardDescription></CardHeader><CardContent className="p-0"><Table><TableHeader><TableRow><TableHead>内容主题</TableHead><TableHead>类型</TableHead>{channels.map((c) => <TableHead key={c} className="text-center">{c}</TableHead>)}<TableHead className="text-right">总曝光量</TableHead><TableHead className="text-right">总点击量</TableHead></TableRow></TableHeader><TableBody>{distribution.map((d) => { const imp = d.channels.reduce((s, c) => s + c.impressions, 0); const clk = d.channels.reduce((s, c) => s + c.clicks, 0); return <TableRow key={d.id}><TableCell><div className="font-medium">{d.title}</div><div className="text-[10px] text-muted-foreground">{d.id}</div></TableCell><TableCell>{d.type}</TableCell>{d.channels.map((c) => <TableCell key={c.channel} className="text-center">{c.delivered ? <CheckCircle2 className="mx-auto size-4 text-primary" /> : <X className="mx-auto size-4 text-muted-foreground/40" />}</TableCell>)}<TableCell className="text-right font-medium">{fmt(imp)}</TableCell><TableCell className="text-right font-medium text-primary">{fmt(clk)}</TableCell></TableRow> })}</TableBody></Table></CardContent></Card></>}
 
     {/* campaign tab */}
     {tab === "campaign" && <div className="grid grid-cols-3 gap-4">{campaigns.map((campaign) => <Card key={campaign.name} className="shadow-none"><CardHeader><div className="flex items-start justify-between"><div className="flex size-9 items-center justify-center rounded-lg bg-muted"><Megaphone className="size-4" /></div><Badge variant={campaign.status === "投放中" ? "default" : "secondary"}>{campaign.status}</Badge></div><CardTitle className="pt-3 text-sm">{campaign.name}</CardTitle><CardDescription className="text-[11px]">{campaign.channels}</CardDescription></CardHeader><CardContent className="flex flex-col gap-4"><div><div className="mb-2 flex justify-between text-[11px]"><span>预算消耗</span><b>{campaign.spent}%</b></div><Progress value={campaign.spent} /></div><div className="grid grid-cols-2 gap-3"><div className="rounded-lg bg-muted p-3"><div className="text-[10px] text-muted-foreground">计划预算</div><b className="mt-1 block text-sm">{campaign.budget}</b></div><div className="rounded-lg bg-muted p-3"><div className="text-[10px] text-muted-foreground">ROAS</div><b className="mt-1 block text-sm">{campaign.roas}</b></div></div><Button variant="outline" onClick={() => toast.success("投放数据已更新")}><Megaphone />查看投放明细</Button></CardContent></Card>)}</div>}
