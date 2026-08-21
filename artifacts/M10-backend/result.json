@@ -1,0 +1,19 @@
+{
+  "taskId": "M10-backend",
+  "status": "COMPLETED",
+  "summary": "工作台后端契约对齐：/dashboard、/acknowledge 路径修正，新增 PATCH 任务局部更新端点，WorkbenchControllerTest 7 用例全通过",
+  "tests": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0
+  },
+  "filesChanged": 5,
+  "linesAdded": 282,
+  "contractChecks": [
+    {"endpoint": "GET /api/v1/workbench/dashboard", "status": "PASS"},
+    {"endpoint": "PATCH /api/v1/workbench/tasks/{id}", "status": "PASS"},
+    {"endpoint": "POST /api/v1/workbench/inquiries/{id}/acknowledge", "status": "PASS"}
+  ],
+  "blockers": []
+}

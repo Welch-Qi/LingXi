@@ -15,7 +15,9 @@ import com.lingxi.workbench.domain.UwTask;
 import com.lingxi.workbench.infra.mapper.UwInquiryEventMapper;
 import com.lingxi.workbench.infra.mapper.UwTaskMapper;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,9 +52,9 @@ public class WorkbenchController {
         this.idGenerator = idGenerator;
     }
 
-    @GetMapping("/home")
+    @GetMapping("/dashboard")
     @RequirePermission("uw:home:view")
-    public Result<Map<String, Object>> home() {
+    public Result<Map<String, Object>> dashboard() {
         UserContext.UserPrincipal principal = UserContext.require();
         Long tenantId = resolveTenantId();
         long kpiCount = kpiSnapshotMapper.selectCount(new LambdaQueryWrapper<DmKpiSnapshot>()
@@ -142,6 +144,34 @@ public class WorkbenchController {
         return Result.ok(task);
     }
 
+    @PatchMapping("/tasks/{id}")
+    @RequirePermission("uw:home:view")
+    public Result<UwTask> updateTask(@PathVariable Long id, @RequestBody @Validated UpdateTaskRequest request) {
+        Long tenantId = resolveTenantId();
+        UwTask task = uwTaskMapper.selectOne(new LambdaQueryWrapper<UwTask>()
+                .eq(UwTask::getId, id).eq(UwTask::getTenantId, tenantId));
+        if (task == null) {
+            throw new BizException(ErrorCode.NOT_FOUND, "task not found");
+        }
+        if (request.status() != null) {
+            task.setStatus(request.status().trim().toUpperCase(Locale.ROOT));
+            if ("DONE".equals(task.getStatus())) {
+                task.setCompletedAt(Instant.now());
+            }
+        }
+        if (request.priority() != null) {
+            task.setPriority(request.priority());
+        }
+        if (request.assigneeId() != null) {
+            task.setAssigneeId(request.assigneeId());
+        }
+        if (request.dueAt() != null) {
+            task.setDueAt(request.dueAt());
+        }
+        uwTaskMapper.updateById(task);
+        return Result.ok(task);
+    }
+
     @PostMapping("/tasks/{id}/complete")
     @RequirePermission("uw:home:view")
     public Result<UwTask> completeTask(@PathVariable Long id) {
@@ -174,9 +204,9 @@ public class WorkbenchController {
         return Result.ok(data);
     }
 
-    @PostMapping("/inquiries/{id}/ack")
+    @PostMapping("/inquiries/{id}/acknowledge")
     @RequirePermission("uw:home:view")
-    public Result<UwInquiryEvent> ackInquiry(@PathVariable Long id) {
+    public Result<UwInquiryEvent> acknowledgeInquiry(@PathVariable Long id) {
         Long tenantId = resolveTenantId();
         UwInquiryEvent event = inquiryEventMapper.selectOne(new LambdaQueryWrapper<UwInquiryEvent>()
                 .eq(UwInquiryEvent::getId, id).eq(UwInquiryEvent::getTenantId, tenantId));
