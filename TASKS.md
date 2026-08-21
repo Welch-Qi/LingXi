@@ -22,10 +22,10 @@
 | M6 | M6-frontend | 营销域前端页面 | M6-backend | PENDING | - | - | - | - | - | 依赖 M6 后端 API |
 | M7 | M7-backend | 知识中心（模板/话术/提示词） | M0, M1 | DONE | B | bc-58dea20a | run-31a9efe4 | #4 (merged) | 0 | 146s，8测试全通过，keyword搜索+分页格式 |
 | M7 | M7-frontend | 知识中心前端页面 | M7-backend | PENDING | - | - | - | - | - | 依赖 M7 后端 API |
-| M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | DISPATCHED | B | bc-9158d07b | run-c3b19b49 | - | 0 | Agent 运行中 |
+| M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | DONE | B | bc-9158d07b | run-c3b19b49 | #11 (merged) | 0 | 131s，8测试全通过，/qa→/ask契约对齐+DecisionController/ServiceTest |
 | M8 | M8-frontend | 决策中心前端页面 | M8-backend | PENDING | - | - | - | - | - | 依赖 M8 后端 API |
-| M9 | M9-backend | AI Agent Runtime（五大智能体） | M4, M5, M6, M7 | DISPATCHED | B | bc-8ad1d87e | run-08045b72 | - | 0 | Agent 运行中（Python 工程） |
-| M10 | M10-backend | 工作台后端（首页/任务中心/通知） | M0, M1 | DISPATCHED | B | bc-183795d3 | run-0eee90c8 | - | 0 | Agent 运行中 |
+| M9 | M9-backend | AI Agent Runtime（五大智能体） | M4, M5, M6, M7 | DONE | B | bc-8ad1d87e | run-08045b72 | #10 (merged) | 0 | 129s，9测试全通过，新增POST/agent/tasks+GET/agent/tasks/{id}+POST/agent/chat三契约端点 |
+| M10 | M10-backend | 工作台后端（首页/任务中心/通知） | M0, M1 | DONE | B | bc-183795d3 | run-0eee90c8 | #12 (merged) | 0 | 113s，7测试全通过，/home→/dashboard+/ack→/acknowledge+新增PATCH /tasks/{id} |
 | M10 | M10-frontend | 统一工作台 + 全量前端联调 | M4~M9 全部前端 | PENDING | - | - | - | - | - | 通道C：复杂模块人工兜底 |
 
 ---
@@ -95,3 +95,5 @@ M0 平台底座
 | 2026-08-20 | M2/M3/M7 三路并行完成并合并：M2 PR#5(176s,8测试)+M3 PR#6(179s,10测试)+M7 PR#4(146s,8测试)，共26测试全通过，新增27文件+1679行。M4/M5/M6 解锁为 READY |
 | 2026-08-21 | M4/M5/M6 三路并行派发到 Cursor Cloud：M4(bc081e6252)+M5(bc3f886876)+M6(bc5eddff8d)，全部 RUNNING |
 | 2026-08-21 | M4/M5/M6 三路并行完成并合并：M4 PR#9(227s,8测试)+M5 PR#8(192s,11测试)+M6 PR#7(161s,8测试)，共27测试全通过，+1297行。M8/M9 解锁为 READY。至此 M0~M7 后端全部 DONE |
+| 2026-08-21 | M8/M9/M10 三路并行派发到 Cursor Cloud：M8(bc9158d07b)+M9(bc8ad1d87e)+M10(bc183795d3)，全部 RUNNING |
+| 2026-08-21 | M8/M9/M10 三路并行完成并合并：M8 PR#11(131s,8测试)+M9 PR#10(129s,9测试)+M10 PR#12(113s,7测试)，共24测试全通过，+934行。**全部后端模块 M0~M10 DONE，后端开发完成** |
