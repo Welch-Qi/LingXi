@@ -1,0 +1,27 @@
+{
+  "task": "M5-frontend",
+  "agent": "bc-42167dab-01dd-4077-b9e3-cd9f009df244",
+  "runId": "bc-42167dab-01dd-4077-b9e3-cd9f009df244",
+  "status": "COMPLETED",
+  "prUrl": "",
+  "branch": "cursor/feat-m5-frontend",
+  "summary": "销售域页面接入真实 API（leads/customers/opportunities/sessions），去除 @ts-nocheck，typecheck 通过",
+  "changedFiles": [
+    "lingxi-web/apps/lingxi-web/src/components/pages/sales-page.tsx",
+    "lingxi-web/apps/lingxi-web/src/lib/api-sales.ts",
+    "artifacts/M5-frontend/result.json"
+  ],
+  "tests": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "coverage": 0,
+    "note": "前端以 typecheck/build 为验证，无单元测试；apps/lingxi-web pnpm typecheck 通过"
+  },
+  "contractChecks": {
+    "passed": 6,
+    "failed": 0
+  },
+  "blockers": [],
+  "nextActions": []
+}
