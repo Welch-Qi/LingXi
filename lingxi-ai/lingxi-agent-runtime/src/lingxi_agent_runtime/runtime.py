@@ -36,8 +36,9 @@ class AgentRuntime:
         user_id: str,
         trace_id: str | None = None,
         thread_id: str | None = None,
+        task_id: str | None = None,
     ) -> dict[str, Any]:
-        task_id = new_task_id()
+        task_id = task_id or new_task_id()
         trace = trace_id or uuid.uuid4().hex
         recorder = TrajectoryRecorder(task_id=task_id)
         recorder.log("task_started", "supervisor", goal=goal, tenantId=tenant_id, userId=user_id)
