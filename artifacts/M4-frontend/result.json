@@ -1,0 +1,27 @@
+{
+  "task": "M4-frontend",
+  "agent": "bc-3be30548-37bc-4751-972f-bbed85cb726b",
+  "runId": "run-m4-frontend",
+  "status": "COMPLETED",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/14",
+  "branch": "cursor/feat-m4-frontend",
+  "summary": "市场域页面接入真实 API（search-trends/region-heat/hot-keywords/rising-keywords/opportunities），去除 @ts-nocheck，typecheck 通过",
+  "changedFiles": [
+    "lingxi-web/apps/lingxi-web/src/components/pages/product-page.tsx",
+    "lingxi-web/apps/lingxi-web/src/lib/api-market.ts",
+    "lingxi-web/apps/lingxi-web/src/app/(biz)/market/page.tsx"
+  ],
+  "tests": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "coverage": 0,
+    "note": "前端以 typecheck/build 为验证，无单元测试；pnpm --filter @lingxi/web typecheck 通过"
+  },
+  "contractChecks": {
+    "passed": 5,
+    "failed": 0
+  },
+  "blockers": [],
+  "nextActions": []
+}
