@@ -1,0 +1,26 @@
+{
+  "task": "M6-frontend",
+  "agent": "bc-fbab8a52-a776-4e1e-a7fd-6cecf9a95eb8",
+  "runId": "run-m6-frontend-20260821",
+  "status": "COMPLETED",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/16",
+  "branch": "cursor/feat-m6-frontend",
+  "summary": "营销域页面接入真实 API（social-accounts 绑定/解绑 + contents/campaigns 全链路），新增社媒账号管理，去除 @ts-nocheck，typecheck 通过",
+  "changedFiles": [
+    "lingxi-web/apps/lingxi-web/src/components/pages/marketing-page.tsx",
+    "lingxi-web/apps/lingxi-web/src/lib/api-marketing.ts"
+  ],
+  "tests": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "coverage": 0,
+    "note": "前端以 typecheck/build 为验证，无单元测试；apps/lingxi-web pnpm typecheck 通过"
+  },
+  "contractChecks": {
+    "passed": 4,
+    "failed": 0
+  },
+  "blockers": [],
+  "nextActions": []
+}
