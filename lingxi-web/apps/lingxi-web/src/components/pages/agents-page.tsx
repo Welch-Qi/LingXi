@@ -1,8 +1,8 @@
 "use client"
-// @ts-nocheck — design dump
+
 import Image from "next/image"
-import { useEffect, useState } from "react"
-import { Activity, CheckCircle2, GraduationCap, ListChecks, Rocket, Settings2, ShieldCheck, Wrench, Zap } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { Activity, CheckCircle2, GraduationCap, ListChecks, Play, Rocket, Settings2, ShieldCheck, Wrench, Zap } from "lucide-react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,8 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { loadAgents, runAgent } from "@/lib/api-agent"
 import { loadAgentConfig, loadAgentRunLogs, saveAgentConfig, UI_AGENT_CODE } from "@/lib/bapi"
-import { agents } from "@/lib/mocks/dashboard"
+import { agents as mockAgents } from "@/lib/mocks/dashboard"
 import { agentLogs as mockAgentLogs } from "@/lib/mocks/data-assets"
 import type { Agent, AgentId } from "@/types"
 
@@ -22,7 +23,8 @@ interface AgentConfig {
   businessMentor: { name: string; title: string }
   itMentor: { name: string; title: string }
 }
-const config: Record<AgentId, AgentConfig> = {
+
+const agentVisualConfig: Record<AgentId, AgentConfig> = {
   analyst: {
     image: "/images/agent-analyst.png",
     skills: ["经营分析", "数据洞察", "漏斗诊断", "决策建议", "预测预警"],
@@ -52,6 +54,7 @@ const config: Record<AgentId, AgentConfig> = {
     itMentor: { name: "李维", title: "CRM 系统架构师" },
   },
 }
+
 const medalStyle: Record<string, string> = {
   金牌: "bg-amber-100 text-amber-700",
   银牌: "bg-slate-200 text-slate-700",
@@ -60,6 +63,18 @@ const medalStyle: Record<string, string> = {
 }
 
 type UiLog = { id: string; agent: string; task: string; duration: string; tokens: string; status: string; time: string }
+
+function mapMockLog(log: (typeof mockAgentLogs)[number]): UiLog {
+  return {
+    id: log.id,
+    agent: log.agent,
+    task: log.task,
+    duration: log.duration,
+    tokens: log.tokens,
+    status: log.status,
+    time: log.time,
+  }
+}
 
 function mapRunLog(row: Record<string, unknown>): UiLog {
   const created = row.createdAt ? String(row.createdAt) : ""
@@ -77,28 +92,64 @@ function mapRunLog(row: Record<string, unknown>): UiLog {
   }
 }
 
+function parseStringArray(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null
+  return value.filter((item): item is string => typeof item === "string")
+}
+
+function parseMentor(value: unknown): { name: string; title: string } | null {
+  if (!value || typeof value !== "object") return null
+  const obj = value as Record<string, unknown>
+  if (typeof obj.name !== "string") return null
+  return { name: obj.name, title: String(obj.title ?? "") }
+}
+
+function mergeConfigFromApi(agentId: AgentId, apiCfg: Record<string, unknown>): AgentConfig {
+  const base = agentVisualConfig[agentId]
+  const skills = parseStringArray(apiCfg.skills) ?? base.skills
+  const responsibilities = parseStringArray(apiCfg.responsibilities) ?? base.responsibilities
+  const businessMentor = parseMentor(apiCfg.businessMentor) ?? base.businessMentor
+  const itMentor = parseMentor(apiCfg.itMentor) ?? base.itMentor
+  return { ...base, skills, responsibilities, businessMentor, itMentor }
+}
+
 export function AgentsPage() {
+  const [agents] = useState<Agent[]>(mockAgents)
+  const [apiAgentCount, setApiAgentCount] = useState<number | null>(null)
   const [configAgent, setConfigAgent] = useState<Agent | null>(null)
-  const [logs, setLogs] = useState<UiLog[]>(mockAgentLogs)
+  const [drawerConfig, setDrawerConfig] = useState<AgentConfig | null>(null)
+  const [logs, setLogs] = useState<UiLog[]>(() => mockAgentLogs.map(mapMockLog))
   const [persistedHint, setPersistedHint] = useState<string | null>(null)
+  const [running, setRunning] = useState(false)
+
+  const refreshLogs = useCallback(async () => {
+    try {
+      const rows = await loadAgentRunLogs()
+      if (rows.length) setLogs(rows.map(mapRunLog))
+    } catch {
+      /* keep current logs */
+    }
+  }, [])
 
   useEffect(() => {
-    void loadAgentRunLogs()
-      .then((rows) => {
-        if (rows.length) setLogs(rows.map(mapRunLog))
-      })
-      .catch(() => { /* keep mock */ })
-  }, [])
+    void loadAgents()
+      .then((rows) => setApiAgentCount(rows.length))
+      .catch(() => { /* keep mock count */ })
+    void refreshLogs()
+  }, [refreshLogs])
 
   useEffect(() => {
     if (!configAgent) {
       setPersistedHint(null)
+      setDrawerConfig(null)
       return
     }
-    const code = UI_AGENT_CODE[configAgent.id] || configAgent.id
+    const code = UI_AGENT_CODE[configAgent.id] ?? configAgent.id
+    setDrawerConfig(agentVisualConfig[configAgent.id])
     void loadAgentConfig(code)
       .then((cfg) => {
         if (cfg && Object.keys(cfg).length) {
+          setDrawerConfig(mergeConfigFromApi(configAgent.id, cfg))
           setPersistedHint(`已加载落库配置（enabled=${String(cfg.enabled ?? true)}）`)
         } else {
           setPersistedHint("尚无落库配置，保存后将写入 ac_agent_config")
@@ -109,8 +160,8 @@ export function AgentsPage() {
 
   async function handleSaveConfig() {
     if (!configAgent) return
-    const code = UI_AGENT_CODE[configAgent.id] || configAgent.id
-    const base = config[configAgent.id]
+    const code = UI_AGENT_CODE[configAgent.id] ?? configAgent.id
+    const base = drawerConfig ?? agentVisualConfig[configAgent.id]
     try {
       await saveAgentConfig(code, {
         enabled: true,
@@ -129,6 +180,27 @@ export function AgentsPage() {
     }
   }
 
+  async function handleRunAgent() {
+    if (!configAgent || running) return
+    const code = UI_AGENT_CODE[configAgent.id] ?? configAgent.id
+    setRunning(true)
+    try {
+      const resp = await runAgent({ agentCode: code, action: "run" })
+      const status = String(resp.status ?? "SUCCESS")
+      toast.success(`已触发运行（${status}）`)
+      await refreshLogs()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "触发智能体运行失败")
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  const onlineCount = apiAgentCount ?? agents.length
+  const activeDrawerConfig = configAgent
+    ? (drawerConfig ?? agentVisualConfig[configAgent.id])
+    : null
+
   return (
     <div className="flex w-full flex-col gap-4">
       <section className="flex items-center justify-between">
@@ -146,7 +218,8 @@ export function AgentsPage() {
           </p>
         </div>
         <Badge variant="outline" className="gap-1.5 text-[10px]">
-          <span className="size-1.5 rounded-full bg-primary" />4 个智能体在线
+          <span className="size-1.5 rounded-full bg-primary" />
+          {onlineCount} 个智能体在线
         </Badge>
       </section>
       <section className="grid grid-cols-4 gap-4">
@@ -154,7 +227,7 @@ export function AgentsPage() {
           <Card key={a.id} className="overflow-hidden shadow-none">
             <CardContent className="flex flex-col items-center gap-3 p-5">
               <div className="relative size-24 overflow-hidden rounded-full ring-2 ring-border">
-                <Image unoptimized src={config[a.id].image} alt={`${a.title} ${a.name}`} fill className="object-cover object-top" />
+                <Image unoptimized src={agentVisualConfig[a.id].image} alt={`${a.title} ${a.name}`} fill className="object-cover object-top" />
               </div>
               <div className="text-center">
                 <p className="text-sm font-semibold">
@@ -176,7 +249,7 @@ export function AgentsPage() {
                 <Progress value={a.successRate} className="h-1.5" />
               </div>
               <div className="flex flex-wrap justify-center gap-1.5">
-                {config[a.id].skills.slice(0, 3).map((c) => (
+                {agentVisualConfig[a.id].skills.slice(0, 3).map((c) => (
                   <Badge key={c} variant="outline" className="text-[9px]">
                     {c}
                   </Badge>
@@ -262,12 +335,12 @@ export function AgentsPage() {
             <SheetTitle>配置智能体</SheetTitle>
             <SheetDescription>维护智能体的身份、职责、技能与导师；保存写入租户配置表</SheetDescription>
           </SheetHeader>
-          {configAgent && (
+          {configAgent && activeDrawerConfig && (
             <div className="flex flex-col gap-5 overflow-auto p-4">
               {persistedHint ? <p className="text-[11px] text-muted-foreground">{persistedHint}</p> : null}
               <div className="flex items-center gap-4">
                 <div className="relative size-20 shrink-0 overflow-hidden rounded-full ring-2 ring-border">
-                  <Image unoptimized src={config[configAgent.id].image} alt={configAgent.name} fill className="object-cover object-top" />
+                  <Image unoptimized src={activeDrawerConfig.image} alt={configAgent.name} fill className="object-cover object-top" />
                 </div>
                 <div>
                   <p className="text-base font-semibold">
@@ -288,7 +361,7 @@ export function AgentsPage() {
                   工作职责
                 </div>
                 <ul className="flex flex-col gap-2">
-                  {config[configAgent.id].responsibilities.map((r, i) => (
+                  {activeDrawerConfig.responsibilities.map((r, i) => (
                     <li key={i} className="flex gap-2.5 rounded-md border p-2.5 text-[11px] leading-5">
                       <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
                         {i + 1}
@@ -304,7 +377,7 @@ export function AgentsPage() {
                   技能列表
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {config[configAgent.id].skills.map((s) => (
+                  {activeDrawerConfig.skills.map((s) => (
                     <Badge key={s} variant="outline" className="text-[10px]">
                       {s}
                     </Badge>
@@ -318,8 +391,8 @@ export function AgentsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { l: "业务导师", m: config[configAgent.id].businessMentor },
-                    { l: "IT 导师", m: config[configAgent.id].itMentor },
+                    { l: "业务导师", m: activeDrawerConfig.businessMentor },
+                    { l: "IT 导师", m: activeDrawerConfig.itMentor },
                   ].map((x) => (
                     <div key={x.l} className="rounded-lg border p-3">
                       <p className="text-[10px] text-muted-foreground">{x.l}</p>
@@ -329,7 +402,15 @@ export function AgentsPage() {
                   ))}
                 </div>
               </div>
-              <Button onClick={handleSaveConfig}>保存配置到后端</Button>
+              <div className="flex gap-2">
+                <Button className="flex-1" onClick={handleSaveConfig}>
+                  保存配置到后端
+                </Button>
+                <Button className="flex-1" variant="secondary" disabled={running} onClick={handleRunAgent}>
+                  <Play data-icon="inline-start" />
+                  {running ? "运行中…" : "运行智能体"}
+                </Button>
+              </div>
             </div>
           )}
         </SheetContent>
