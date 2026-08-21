@@ -1,6 +1,5 @@
 "use client"
-// @ts-nocheck — design dump; map geography props loosely
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, type ElementType, type MouseEvent } from "react"
 import Image from "next/image"
 import { ComposableMap, Geographies, Geography } from "react-simple-maps"
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
@@ -10,10 +9,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { analyticsKPIs, countryDetails as mockCountryDetails, countryRanks as mockCountryRanks, countrySalesMap as mockCountrySalesMap, funnelSteps as mockFunnelSteps, productRanks as mockProductRanks, trendData as mockTrendData } from "@/lib/mocks/analytics"
 import { apiGet, apiPost } from "@/lib/api"
+import { formatAskReply, inferMetricCode, parseDecisionDashboard, type DecisionAskPayload } from "@/lib/api-decision"
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json"
 
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, ElementType> = {
   Boxes, Flame, Eye, MousePointerClick, Users, ShoppingCart, BadgeCheck,
 }
 
@@ -68,24 +68,16 @@ export function AnalyticsPage() {
   const [updatedHint, setUpdatedHint] = useState("数据更新于 2 分钟前")
 
   useEffect(() => {
-    void apiGet<{
-      kpis?: typeof analyticsKPIs
-      countryRanks?: typeof mockCountryRanks
-      productRanks?: typeof mockProductRanks
-      funnel?: typeof mockFunnelSteps
-      trend?: typeof mockTrendData
-      countryHeat?: Record<string, number>
-      countryDetails?: typeof mockCountryDetails
-      updatedAtHint?: string
-    }>("/decision/dashboard")
-      .then((dash) => {
+    void apiGet<Record<string, unknown>>("/decision/dashboard")
+      .then((raw) => {
+        const dash = parseDecisionDashboard(raw)
         if (dash.kpis?.length) setKpis(dash.kpis)
         if (dash.countryRanks?.length) setCountryRanks(dash.countryRanks)
         if (dash.productRanks?.length) setProductRanks(dash.productRanks)
         if (dash.funnel?.length) setFunnelSteps(dash.funnel)
         if (dash.trend?.length) setTrendData(dash.trend)
         if (dash.countryHeat) setCountrySalesMap(dash.countryHeat)
-        if (dash.countryDetails) setCountryDetails(dash.countryDetails as typeof mockCountryDetails)
+        if (dash.countryDetails) setCountryDetails(dash.countryDetails)
         if (dash.updatedAtHint) setUpdatedHint(dash.updatedAtHint)
       })
       .catch(() => { /* keep mock */ })
@@ -100,32 +92,10 @@ export function AnalyticsPage() {
     setInput("")
     setTyping(true)
     void (async () => {
-      const lower = text.toLowerCase()
-      let metricCode = "leads"
-      if (lower.includes("营收") || lower.includes("revenue") || lower.includes("成交金额")) metricCode = "revenue"
-      else if (lower.includes("曝光")) metricCode = "impression"
-      else if (lower.includes("点击")) metricCode = "click"
-      else if (lower.includes("订单")) metricCode = "order"
-      else if (lower.includes("成交") && !lower.includes("转化")) metricCode = "deal"
-      else if (lower.includes("转化") || lower.includes("win")) metricCode = "win_rate"
-      else if (lower.includes("爆品")) metricCode = "hot"
-      else if (lower.includes("商品")) metricCode = "products"
-      else if (lower.includes("客户") || lower.includes("customer")) metricCode = "customers"
-      else if (lower.includes("线索") || lower.includes("lead") || lower.includes("潜客")) metricCode = "lead"
+      const metricCode = inferMetricCode(text)
       try {
-        const data = await apiPost<{
-          metricCode?: string
-          value?: unknown
-          periodKey?: string
-          answer?: string
-          message?: string
-        }>("/decision/qa", { metricCode, question: text })
-        const line = data.answer
-          ? `${data.answer}\n\n——\n${aiReply(text)}`
-          : (data.value != null
-            ? `【${data.metricCode ?? metricCode}】${String(data.value)}${data.periodKey ? `（${data.periodKey}）` : ""}\n\n——\n${aiReply(text)}`
-            : aiReply(text))
-        setMessages(prev => [...prev, { role: "ai", text: line }])
+        const data = await apiPost<DecisionAskPayload>("/decision/ask", { metricCode, question: text.trim() })
+        setMessages(prev => [...prev, { role: "ai", text: formatAskReply(data, text, aiReply) }])
       } catch {
         setMessages(prev => [...prev, { role: "ai", text: aiReply(text) }])
       } finally {
@@ -215,13 +185,12 @@ export function AnalyticsPage() {
                             hover: { fill: hasData ? "#f59e0b" : heatColor(heat), outline: "none", cursor: hasData ? "pointer" : "default" },
                             pressed: { outline: "none" },
                           }}
-                          onMouseEnter={(e: React.MouseEvent) => {
+                          onMouseEnter={(e: MouseEvent<SVGPathElement>) => {
                             if (!alpha3 || !countryDetails[alpha3]) return
-                            const rect = (e.currentTarget as SVGElement).closest("svg")!.getBoundingClientRect()
                             const parent = (e.currentTarget as SVGElement).closest(".relative")!.getBoundingClientRect()
                             setMapTooltip({ x: e.clientX - parent.left, y: e.clientY - parent.top, alpha3 })
                           }}
-                          onMouseMove={(e: React.MouseEvent) => {
+                          onMouseMove={(e: MouseEvent<SVGPathElement>) => {
                             if (!alpha3 || !countryDetails[alpha3]) return
                             const parent = (e.currentTarget as SVGElement).closest(".relative")!.getBoundingClientRect()
                             setMapTooltip(prev => prev ? { ...prev, x: e.clientX - parent.left, y: e.clientY - parent.top } : null)
