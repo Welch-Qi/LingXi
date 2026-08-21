@@ -1,0 +1,26 @@
+{
+  "task": "M9-frontend",
+  "agent": "bc-ae1626dc-4057-451c-bab6-ae58e6b841e4",
+  "runId": "bc-ae1626dc-4057-451c-bab6-ae58e6b841e4",
+  "status": "COMPLETED",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/compare/main...cursor/feat-m9-frontend?expand=1",
+  "branch": "cursor/feat-m9-frontend",
+  "summary": "智能体中心页面接入真实 /agents 端点（config/run-logs/run，沿用 lib/bapi），去除 @ts-nocheck，apps/lingxi-web typecheck 通过",
+  "changedFiles": [
+    "lingxi-web/apps/lingxi-web/src/components/pages/agents-page.tsx",
+    "lingxi-web/apps/lingxi-web/src/lib/api-agent.ts"
+  ],
+  "tests": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "coverage": 0,
+    "note": "前端以 typecheck 为验证（cd lingxi-web/apps/lingxi-web && pnpm typecheck 通过）；根 pnpm typecheck 因 @lingxi/utils 包配置问题失败，与本次改动无关"
+  },
+  "contractChecks": {
+    "passed": 2,
+    "failed": 0
+  },
+  "blockers": [],
+  "nextActions": ["在 GitHub 打开 compare 链接创建 PR（autoCreatePR 凭证不可用）"]
+}
