@@ -3,7 +3,7 @@
   "agent": "bc-b2ba8350-6a61-4dd4-b043-9c4d83cb7a61",
   "runId": "run-m8-frontend-20260821",
   "status": "COMPLETED",
-  "prUrl": "",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/13",
   "branch": "cursor/feat-m8-frontend",
   "summary": "决策中心页面接入真实 API（dashboard + ask 问答，修正 /qa→/ask 路径错误），去除 @ts-nocheck，typecheck 通过",
   "changedFiles": [
