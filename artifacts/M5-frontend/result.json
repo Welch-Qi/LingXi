@@ -3,7 +3,7 @@
   "agent": "bc-42167dab-01dd-4077-b9e3-cd9f009df244",
   "runId": "bc-42167dab-01dd-4077-b9e3-cd9f009df244",
   "status": "COMPLETED",
-  "prUrl": "",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/17",
   "branch": "cursor/feat-m5-frontend",
   "summary": "销售域页面接入真实 API（leads/customers/opportunities/sessions），去除 @ts-nocheck，typecheck 通过",
   "changedFiles": [
