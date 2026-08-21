@@ -1,0 +1,23 @@
+{
+  "task": "M7-frontend",
+  "agent": "bc-1b9158af-380a-4f5a-8f60-ce1e0a1ed872",
+  "runId": "run-m7-frontend",
+  "status": "COMPLETED",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/15",
+  "branch": "cursor/feat-m7-frontend",
+  "summary": "知识中心页面补全真实 API（templates/scripts/prompts 增改查），新增创建能力，去除 @ts-nocheck，@lingxi/web typecheck 通过",
+  "changedFiles": [
+    "lingxi-web/apps/lingxi-web/src/components/pages/knowledge-center-page.tsx",
+    "lingxi-web/apps/lingxi-web/src/lib/api-knowledge.ts"
+  ],
+  "tests": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "coverage": 0,
+    "note": "前端以 typecheck 为验证：cd lingxi-web/apps/lingxi-web && pnpm typecheck 通过；根 turbo typecheck 因其他包预存配置问题失败，与本任务无关"
+  },
+  "contractChecks": { "passed": 3, "failed": 0 },
+  "blockers": [],
+  "nextActions": []
+}
