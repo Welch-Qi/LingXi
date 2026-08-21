@@ -1,0 +1,19 @@
+{
+  "taskId": "M8-backend",
+  "status": "COMPLETED",
+  "summary": "契约路径 POST /ask 对齐完成，DecisionController/DecisionDashboardService 单元测试 8 项全通过",
+  "tests": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "filesChanged": 7,
+  "linesAdded": 320,
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/11",
+  "contractChecks": [
+    {"endpoint": "POST /api/v1/decision/ask", "status": "PASS"},
+    {"endpoint": "GET /api/v1/decision/dashboard", "status": "PASS"}
+  ],
+  "blockers": []
+}
