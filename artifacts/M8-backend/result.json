@@ -9,7 +9,8 @@
     "skipped": 0
   },
   "filesChanged": 7,
-  "linesAdded": 330,
+  "linesAdded": 320,
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/11",
   "contractChecks": [
     {"endpoint": "POST /api/v1/decision/ask", "status": "PASS"},
     {"endpoint": "GET /api/v1/decision/dashboard", "status": "PASS"}
