@@ -1,0 +1,21 @@
+{
+  "taskId": "M9-backend",
+  "status": "COMPLETED",
+  "summary": "实现 M9 契约端点 POST /api/v1/agent/tasks、GET /api/v1/agent/tasks/{id}、POST /api/v1/agent/chat，含内存任务存储、异步后台执行与 7 项 API 测试",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/10",
+  "branch": "cursor/feat-m9-backend",
+  "tests": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  },
+  "filesChanged": 4,
+  "linesAdded": 290,
+  "contractChecks": [
+    {"endpoint": "POST /api/v1/agent/tasks", "status": "PASS"},
+    {"endpoint": "GET /api/v1/agent/tasks/{id}", "status": "PASS"},
+    {"endpoint": "POST /api/v1/agent/chat", "status": "PASS"}
+  ],
+  "blockers": []
+}
