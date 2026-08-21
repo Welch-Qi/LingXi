@@ -3,7 +3,7 @@
   "agent": "bc-1b9158af-380a-4f5a-8f60-ce1e0a1ed872",
   "runId": "run-m7-frontend",
   "status": "COMPLETED",
-  "prUrl": "",
+  "prUrl": "https://github.com/Welch-Qi/LingXi/pull/15",
   "branch": "cursor/feat-m7-frontend",
   "summary": "知识中心页面补全真实 API（templates/scripts/prompts 增改查），新增创建能力，去除 @ts-nocheck，@lingxi/web typecheck 通过",
   "changedFiles": [
