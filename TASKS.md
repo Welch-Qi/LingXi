@@ -22,10 +22,10 @@
 | M6 | M6-frontend | 营销域前端页面 | M6-backend | PENDING | - | - | - | - | - | 依赖 M6 后端 API |
 | M7 | M7-backend | 知识中心（模板/话术/提示词） | M0, M1 | DONE | B | bc-58dea20a | run-31a9efe4 | #4 (merged) | 0 | 146s，8测试全通过，keyword搜索+分页格式 |
 | M7 | M7-frontend | 知识中心前端页面 | M7-backend | PENDING | - | - | - | - | - | 依赖 M7 后端 API |
-| M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | READY | - | - | - | - | - | 依赖 M2+M5 已完成，可派发 |
+| M8 | M8-backend | 智能决策中心（驾驶舱/问答查询） | M0, M2, M5 | DISPATCHED | B | bc-9158d07b | run-c3b19b49 | - | 0 | Agent 运行中 |
 | M8 | M8-frontend | 决策中心前端页面 | M8-backend | PENDING | - | - | - | - | - | 依赖 M8 后端 API |
-| M9 | M9-backend | AI Agent Runtime（五大智能体） | M4, M5, M6, M7 | READY | - | - | - | - | - | 依赖的四域后端全部完成，可派发（Python 工程） |
-| M10 | M10-backend | 工作台后端（首页/任务中心/通知） | M0, M1 | READY | - | - | - | - | - | 依赖 M1 已完成，可派发 |
+| M9 | M9-backend | AI Agent Runtime（五大智能体） | M4, M5, M6, M7 | DISPATCHED | B | bc-8ad1d87e | run-08045b72 | - | 0 | Agent 运行中（Python 工程） |
+| M10 | M10-backend | 工作台后端（首页/任务中心/通知） | M0, M1 | DISPATCHED | B | bc-183795d3 | run-0eee90c8 | - | 0 | Agent 运行中 |
 | M10 | M10-frontend | 统一工作台 + 全量前端联调 | M4~M9 全部前端 | PENDING | - | - | - | - | - | 通道C：复杂模块人工兜底 |
 
 ---
