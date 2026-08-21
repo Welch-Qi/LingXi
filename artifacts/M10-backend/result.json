@@ -8,8 +8,10 @@
     "failed": 0,
     "skipped": 0
   },
-  "filesChanged": 5,
-  "linesAdded": 282,
+  "filesChanged": 6,
+  "linesAdded": 300,
+  "branch": "cursor/feat-m10-backend",
+  "prUrl": null,
   "contractChecks": [
     {"endpoint": "GET /api/v1/workbench/dashboard", "status": "PASS"},
     {"endpoint": "PATCH /api/v1/workbench/tasks/{id}", "status": "PASS"},
